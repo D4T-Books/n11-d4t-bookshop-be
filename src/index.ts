@@ -31,12 +31,6 @@ app.use(
 
 // Init router
 
-// app.get("/", (req: Request, res: Response) => {
-//   return res
-//     .status(200)
-//     .json({ message: "Express + TypeScript Server Example" });
-// });
-
 app.use("/", router);
 
 // Handling errors
