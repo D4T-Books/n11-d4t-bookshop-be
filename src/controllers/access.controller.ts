@@ -7,14 +7,14 @@ class AccessController {
   static register = async (req: Request, res: Response, next: NextFunction) => {
     new SuccessResponse({
       message: "Register success!",
-      metadata: await AccessService.register({}),
+      metadata: await AccessService.register(req.body),
     }).send(res);
   };
 
   static login = async (req: Request, res: Response, next: NextFunction) => {
     new SuccessResponse({
       message: "Login success!",
-      metadata: await AccessService.login({}),
+      metadata: await AccessService.login(req.body),
     }).send(res);
   };
 
