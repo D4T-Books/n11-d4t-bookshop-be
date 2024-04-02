@@ -7,7 +7,7 @@ import {
   BadRequestError,
 } from "../../responses/error.response.ts";
 // import createSession from "../../utils/createSession.ts";
-import { createTokenPair } from "../../utils/createToken.ts";
+import { createTokenPair, verifyJWT } from "../../utils/createToken.ts";
 import { pickData } from "../../utils/pick.ts";
 
 type RegisterParams = {
@@ -22,6 +22,11 @@ type LoginParams = {
   username: string;
   password: string;
   email?: string;
+};
+
+type RefreshParams = {
+  username: string;
+  refreshToken: string;
 };
 
 class AccessService {
@@ -86,7 +91,7 @@ class AccessService {
       fields: ["Username", "Email", "Roles", "isDeleted"],
       object: user[0],
     });
-    const tokens = await createTokenPair(dataToken, process.env.JWT_KEY);
+    const tokens = await createTokenPair(dataToken);
 
     // Return user data
     return {
@@ -107,6 +112,48 @@ class AccessService {
 
   static logout = async (): Promise<void> => {
     // Thêm kiểu dữ liệu và trả về của hàm nếu cần
+  };
+
+  static refreshToken = async ({
+    username,
+    refreshToken,
+  }: RefreshParams): Promise<any> => {
+    /*
+      1. check username co ton tai khong
+      2. check token co trong backlish khong
+      3. verify RT 
+      4. Tạo cặp token mới
+    const tokens = await createTokenPair(dataToken);
+
+      5. đưa vào black list
+      6. return tokens
+    */
+
+    //  ! 1:
+    const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
+    const [user] = await queryToDatabase(query1, [username]);
+
+    if (user.length === 0 || user[0].Username !== username)
+      throw new AuthFailureError("Không tìm thấy tài khoản!");
+    // ! 2: auto pass
+
+    // ! 3:
+    const t = await verifyJWT(refreshToken);
+    console.log("t :>> ", t);
+    // ! 4: Create tokens's user
+    const dataToken = pickData({
+      fields: ["Username"],
+      object: t,
+    });
+    const tokens = await createTokenPair(dataToken);
+
+    // ! 5: auto pass
+
+    // ! 6:
+    return {
+      username: user[0].Username,
+      newTokens: tokens,
+    };
   };
 }
 

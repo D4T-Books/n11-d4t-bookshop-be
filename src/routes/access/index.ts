@@ -21,4 +21,6 @@ router.post("/access/register", asyncHandle(AccessController.register));
 router.post("/access/login", asyncHandle(AccessController.login));
 router.post("/access/logout", asyncHandle(AccessController.logout));
 
+router.post("/access/refresh", asyncHandle(AccessController.refreshToken));
+
 export default router;
