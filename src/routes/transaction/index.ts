@@ -10,4 +10,9 @@ router.post(
   "/transaction/add-coins",
   asyncHandle(TransactionController.addCoins)
 );
+
+router.post(
+  "/transaction/use-coins",
+  asyncHandle(TransactionController.useCoins)
+);
 export default router;
