@@ -106,7 +106,7 @@ class TransactionService {
     if (existUser.length === 0 || existUser[0].Username !== username)
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
-    if (existUser[0].coins <= 0 || existUser[0].coins <= numberOfCoins)
+    if (existUser[0].coins <= 0 || existUser[0].coins < numberOfCoins)
       throw new BadRequestError("Tài khoản không đủ xu!");
 
     //! 3. Giảm số lượng xu trong bảng users
