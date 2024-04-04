@@ -106,14 +106,14 @@ class TransactionService {
     if (existUser.length === 0 || existUser[0].Username !== username)
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
-    if (existUser[0].coins <= 0 || existUser[0].coins < numberOfCoins)
+    if (existUser[0].coins < 0 || existUser[0].coins < numberOfCoins)
       throw new BadRequestError("Tài khoản không đủ xu!");
 
-    //! 3. Giảm số lượng xu trong bảng users
+    //! 2. Giảm số lượng xu trong bảng users
     const query3 = `UPDATE users SET coins = coins - ? WHERE Username = ?`;
     await queryToDatabase(query3, [numberOfCoins, username]);
 
-    //! 4. Thêm lịch sử giao dịch vào bảng transactions
+    //! 3. Thêm lịch sử giao dịch vào bảng transactions
     const query4 = `INSERT INTO transactions 
     (UserID, TransactionType, TransactionAmount, tradingCode) 
     VALUES (?, ?, ?, ?)`;
@@ -139,7 +139,7 @@ class TransactionService {
         fields: ["UserID", "Username", "Email", "Fullname", "Address", "coins"],
         object: userAfterPay[0],
       }),
-      newTransaction,
+      newTransaction: newTransaction[0],
     };
   };
 }
