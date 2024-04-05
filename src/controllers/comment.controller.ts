@@ -14,6 +14,17 @@ class CommentController {
       metadata: await CommentService.createComment(req.body),
     }).send(res);
   };
+
+  static getComments = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Add a new comment success!",
+      metadata: await CommentService.getComments(req.body),
+    }).send(res);
+  };
 }
 
 export default CommentController;

@@ -6,13 +6,17 @@ import {
   BadRequestError,
 } from "../../responses/error.response.ts";
 import { pickData } from "../../utils/pick.ts";
-import { currentTimestamp } from "./../../utils/getCurrentTimestamp";
 import generateRandomNumber from "../../utils/generateRandomNumber.ts";
 
 type addCommentParams = {
   username: string;
   BookID: string;
   Content: string;
+};
+
+type getCommentsByBookIDParams = {
+  BookID: string;
+  numberComment?: number;
 };
 
 class CommentService {
@@ -67,6 +71,41 @@ class CommentService {
 
     return {
       newComment: newComment[0],
+    };
+  };
+
+  //! Get the number of the latest comments by BookID
+  static getComments = async ({
+    BookID,
+    numberComment = 10,
+  }: getCommentsByBookIDParams) => {
+    //! 1. Kiem tra sách co ton tai khong
+    const query1 = `SELECT * FROM books WHERE BookID = ?`;
+    const [existBook] = await queryToDatabase(query1, [BookID]);
+
+    if (existBook.length === 0)
+      throw new AuthFailureError(
+        "Sách này không còn tồn tại! Không thể lấy bình luận!"
+      );
+
+    //! 2. Get comments from database
+    const MAX_RECORD_CAN_GET = 30;
+
+    if (Number(numberComment) <= 0)
+      throw new BadRequestError("Yêu cầu không hợp lệ!");
+
+    if (Number(numberComment) > MAX_RECORD_CAN_GET)
+      throw new BadRequestError(
+        `Số comment tối đa có thể lấy là ${MAX_RECORD_CAN_GET}!`
+      );
+
+    // Retrieve comments from the database
+    let query2 = `SELECT * FROM comments WHERE BookID = ? ORDER BY comments.ID DESC
+      LIMIT ${numberComment}`;
+    const [comments] = await queryToDatabase(query2, [BookID]);
+
+    return {
+      comments,
     };
   };
 }

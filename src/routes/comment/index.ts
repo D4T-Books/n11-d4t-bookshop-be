@@ -6,9 +6,8 @@ import CommentController from "./../../controllers/comment.controller";
 
 const router = express.Router();
 
-router.post(
-  "/comment/create-comment",
-  asyncHandle(CommentController.createComment)
-);
+router.post("/comment/add", asyncHandle(CommentController.createComment));
+
+router.post("/comment/list", asyncHandle(CommentController.getComments));
 
 export default router;
