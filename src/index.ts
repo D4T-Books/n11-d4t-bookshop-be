@@ -10,6 +10,7 @@ import express, {
 } from "express";
 import morgan from "morgan";
 import helmet from "helmet";
+import cors from "cors";
 import compression from "compression";
 import { createLogger, transports, format } from "winston";
 
@@ -22,6 +23,7 @@ const port = process.env.PORT || 3000;
 // Init middleware
 app.use(morgan("dev"));
 app.use(helmet());
+app.use(cors());
 app.use(compression());
 app.use(express.json());
 app.use(
