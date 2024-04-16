@@ -19,7 +19,6 @@ import { NotFoundError } from "./responses/error.response.ts";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger/swaggerOptions.ts";
 import cookieParser from "cookie-parser";
-import logger from "./configs/logger.config.ts";
 
 const app: Express = express();
 const port = process.env.PORT || 3000;

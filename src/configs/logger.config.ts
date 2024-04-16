@@ -7,7 +7,7 @@ const logger = createLogger({
     format.simple() // Định dạng log đơn giản
   ),
   transports: [
-    new transports.Console(), // Log đến console
+    // new transports.Console(),
     new transports.File({ filename: "app.log" }),
   ],
 });
