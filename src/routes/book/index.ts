@@ -1,5 +1,3 @@
-"use strict";
-
 import express from "express";
 import asyncHandle from "../../helpers/asyncHandle.ts";
 import BookController from "./../../controllers/book.controller";
