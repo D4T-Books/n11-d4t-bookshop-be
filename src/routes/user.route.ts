@@ -1,6 +1,6 @@
 import express from "express";
-import asyncHandle from "../../helpers/asyncHandle.ts";
-import UserController from "./../../controllers/user.controller";
+import asyncHandle from "../helpers/asyncHandle.ts";
+import UserController from "../controllers/user.controller.ts";
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
-import AccessService from "../services/access/access.service.ts";
+import { AccessService } from "../services/index.ts";
 
 class AccessController {
   static register = async (req: Request, res: Response, next: NextFunction) => {

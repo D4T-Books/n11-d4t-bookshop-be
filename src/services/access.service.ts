@@ -1,14 +1,14 @@
-import { queryToDatabase } from "../../configs/mysql2.config.ts";
+import { queryToDatabase } from "../configs/mysql2.config.ts";
 import * as dotenv from "dotenv";
 dotenv.config();
 import {
   ConflictRequestError,
   AuthFailureError,
   BadRequestError,
-} from "../../responses/error.response.ts";
+} from "../responses/error.response.ts";
 // import createSession from "../../utils/createSession.ts";
-import { createTokenPair, verifyJWT } from "../../utils/createToken.ts";
-import { pickData } from "../../utils/pick.ts";
+import { createTokenPair, verifyJWT } from "../utils/createToken.ts";
+import { pickData } from "../utils/pick.ts";
 
 type RegisterParams = {
   fullname?: string;

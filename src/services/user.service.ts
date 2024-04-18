@@ -1,14 +1,14 @@
-import { queryToDatabase } from "../../configs/mysql2.config.ts";
+import { queryToDatabase } from "../configs/mysql2.config.ts";
 import * as dotenv from "dotenv";
 dotenv.config();
 import {
   AuthFailureError,
   BadRequestError,
-} from "../../responses/error.response.ts";
-import TransactionType from "../../global/index.ts";
-import { pickData } from "../../utils/pick.ts";
-import { currentTimestamp } from "../../utils/getCurrentTimestamp.ts";
-import generateRandomNumber from "../../utils/generateRandomNumber.ts";
+} from "../responses/error.response.ts";
+import { TransactionType } from "../global/index.ts";
+import { pickData } from "../utils/pick.ts";
+import { currentTimestamp } from "../utils/getCurrentTimestamp.ts";
+import generateRandomNumber from "../utils/generateRandomNumber.ts";
 
 type updateUserParams = {
   username: string;

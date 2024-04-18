@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
-import asyncHandle from "./../../helpers/asyncHandle.ts";
-import AccessController from "../../controllers/access.controller.ts";
+import asyncHandle from "../helpers/asyncHandle.ts";
+import AccessController from "../controllers/access.controller.ts";
 
 const router = express.Router();
 

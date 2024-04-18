@@ -1,13 +1,7 @@
 // src/index.ts
 import dotenv from "dotenv";
 dotenv.config();
-import express, {
-  Express,
-  Request,
-  Response,
-  ErrorRequestHandler,
-  NextFunction,
-} from "express";
+import express, { Express, Request, Response, NextFunction } from "express";
 import router from "./routes/index.ts";
 import morgan from "morgan";
 import helmet from "helmet";
@@ -19,6 +13,9 @@ import { NotFoundError } from "./responses/error.response.ts";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger/swaggerOptions.ts";
 import cookieParser from "cookie-parser";
+// import { ip, ipv6, mac } from "address";
+// import { getInterfaceAddress } from "address";
+import logger from "./configs/logger.config.ts";
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -42,12 +39,22 @@ app.use(
 app.get(
   "/v1/api/ping",
   async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    console.log(
+      'req.headers["sec-ch-ua-platform"] :>> ',
+      req.headers["sec-ch-ua-platform"]
+    );
+    logger.info(`\nOS:: ${req.headers["sec-ch-ua-platform"]}`);
+    logger.info(`\nx-forwarded-port:: ${req.headers["x-forwarded-port"]}`);
+    logger.info(`\nx-real-ip:: ${req.headers["x-real-ip"]}`);
+    logger.info(`\nuser-agent:: ${req.headers["user-agent"]}`);
+
     return res.status(200).json({
       status: "success",
       message: "pong",
     });
   }
 );
+
 app.use("/", router);
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
-import TransactionService from "../services/transaction/transaction.service.ts";
+import { TransactionService } from "../services/index.ts";
 
 class TransactionController {
   static addCoins = async (req: Request, res: Response, next: NextFunction) => {

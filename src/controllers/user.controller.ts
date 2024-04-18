@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
-import UserService from "../services/user/index.ts";
+import { UserService } from "../services/index.ts";
 
 class UserController {
   static getAllUser = async (

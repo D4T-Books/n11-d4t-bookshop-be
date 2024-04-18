@@ -3,7 +3,7 @@ const swaggerDefinition: any = {
   info: {
     description: "This is an API document for D4T project.",
     version: "1.0.6",
-    title: "Swagger Confession",
+    title: "Swagger D4T",
     contact: {
       name: "DDung203",
       url: "https://github.com/Ddung203/",

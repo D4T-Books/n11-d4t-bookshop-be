@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
-import BookService from "../services/book/book.service.ts";
+import { BookService } from "../services/index.ts";
 
 class BookController {
   static searchByName = async (

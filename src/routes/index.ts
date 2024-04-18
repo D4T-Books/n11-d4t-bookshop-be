@@ -1,9 +1,9 @@
 import express, { Router } from "express";
-import accessRouter from "./access/index";
-import transactionRouter from "./transaction/index";
-import commentRouter from "./comment/index";
-import bookRouter from "./book/index";
-import userRouter from "./user/index";
+import accessRouter from "./access.route";
+import transactionRouter from "./transaction.route";
+import commentRouter from "./comment.route";
+import bookRouter from "./book.route";
+import userRouter from "./user.route";
 
 const router: Router = express.Router();
 

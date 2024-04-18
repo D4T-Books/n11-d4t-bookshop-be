@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
-import CommentService from "../services/comment/comment.service.ts";
+import { CommentService } from "../services/index.ts";
 
 class CommentController {
   static createComment = async (

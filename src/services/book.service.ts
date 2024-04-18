@@ -1,12 +1,12 @@
-import { queryToDatabase } from "../../configs/mysql2.config.ts";
+import { queryToDatabase } from "../configs/mysql2.config.ts";
 import * as dotenv from "dotenv";
 dotenv.config();
 import {
   AuthFailureError,
   BadRequestError,
-} from "../../responses/error.response.ts";
-import { pickData } from "../../utils/pick.ts";
-import splitPdf from "../../utils/book/split.js";
+} from "../responses/error.response.ts";
+import { pickData } from "../utils/pick.ts";
+import splitPdf from "../utils/book/split.js";
 
 type searchByNameParams = {
   title: string;
