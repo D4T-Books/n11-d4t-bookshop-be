@@ -13,16 +13,26 @@ import { NotFoundError } from "./responses/error.response.ts";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger/swaggerOptions.ts";
 import cookieParser from "cookie-parser";
-// import { ip, ipv6, mac } from "address";
-// import { getInterfaceAddress } from "address";
 import logger from "./configs/logger.config.ts";
+import path from "path";
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
 // Init middleware
+app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      objectSrc: ["'self'", "http://localhost:3000"],
+    },
+  })
+);
 app.use(cors());
 app.use(compression());
 app.use(express.json());
