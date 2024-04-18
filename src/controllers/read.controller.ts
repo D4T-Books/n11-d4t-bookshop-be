@@ -11,13 +11,18 @@ class ReadController {
     res: Response,
     next: NextFunction
   ) => {
+    let formattedPageNum;
+    if (req.body.page && req.body.page < 1000) {
+      formattedPageNum = req.body.page.toString().padStart(3, "0");
+    }
+    console.log("formattedPageNum :>> ", formattedPageNum);
     const pagePath = path.resolve(
       __dirname,
       "../",
       "public",
       "books",
       stringConversion(req.body.title),
-      `${stringConversion(req.body.title)}-${req.body.page}.png`
+      `${stringConversion(req.body.title)}-${formattedPageNum}.png`
     );
     try {
       await fs.access(pagePath);

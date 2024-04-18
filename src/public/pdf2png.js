@@ -56,6 +56,8 @@ for (let index = 1; index <= 10; index++) {
   const outputPath = path.resolve(__dirname, "books", `${curString}`);
 
   convertPdfToImage(pdfPath, outputPath, `${curString}`);
+  curString = "";
+  console.log("curString :>> ", curString);
 }
 
 // const pdfPath = path.resolve(__dirname, "dac_nhan_tam.pdf");
