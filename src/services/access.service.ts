@@ -1,27 +1,35 @@
 import { queryToDatabase } from "../configs/mysql2.config.ts";
-import * as dotenv from "dotenv";
-dotenv.config();
+import { hashFunction, compareFunction } from "../helpers/bcryptHandle.ts";
 import {
   ConflictRequestError,
   AuthFailureError,
   BadRequestError,
 } from "../responses/error.response.ts";
-// import createSession from "../../utils/createSession.ts";
+import { createSession, isExpiredSession } from "../utils/createSession.ts";
 import { createTokenPair, verifyJWT } from "../utils/createToken.ts";
+import { currentTimestamp } from "../utils/getCurrentTimestamp.ts";
 import { pickData } from "../utils/pick.ts";
+import {
+  isExistEmail,
+  isExistUserSession,
+  isExistUsername,
+} from "./access.helper.service.ts";
+import { Request, Response } from "express";
 
 type RegisterParams = {
-  fullname?: string;
-  username?: string;
-  password?: string;
-  email?: string;
-  avatarUrl?: string;
+  fullname: string;
+  password: string;
+  email: string;
 };
 
-type LoginParams = {
+type LoginByUsernameParams = {
   username: string;
   password: string;
-  email?: string;
+};
+
+type LoginByEmailParams = {
+  email: string;
+  password: string;
 };
 
 type RefreshParams = {
@@ -31,33 +39,26 @@ type RefreshParams = {
 
 class AccessService {
   static register = async ({
-    fullname,
-    username,
-    password,
     email,
-    avatarUrl,
+    fullname,
+    password,
   }: RegisterParams): Promise<Record<string, any>> => {
-    const query1 = `SELECT * FROM users WHERE Username = ?`;
-    const query2 = `SELECT * FROM users WHERE Email = ?`;
+    if (await isExistEmail(email))
+      throw new ConflictRequestError("Email đã được sử dụng!");
 
-    const [existUsername] = await queryToDatabase(query1, [username]);
-    const [existEmail] = await queryToDatabase(query2, [email]);
+    const username = email.trim().split("@")[0];
+    const hashedPassword = await hashFunction(password);
 
-    if (existUsername.length > 0)
-      throw new ConflictRequestError("Username đã tồn tại!");
-    if (existEmail.length > 0)
-      throw new ConflictRequestError("Email đã tồn tại!");
-
-    const query3 = `INSERT INTO users (Username, Password, Email, Fullname) VALUES (?,?,?,?)`;
-    const [createUser] = await queryToDatabase(query3, [
+    const query1 = `INSERT INTO users (Username, Password, Email, Fullname) VALUES (?,?,?,?)`;
+    await queryToDatabase(query1, [
       username,
-      password,
-      email,
-      username,
+      hashedPassword,
+      email.trim(),
+      fullname,
     ]);
 
-    const query4 = `SELECT * FROM users WHERE Username = ? AND Email = ?`;
-    const [newUser] = await queryToDatabase(query4, [username, email]);
+    const query2 = `SELECT * FROM users WHERE Username = ? AND Email = ?`;
+    const [newUser] = await queryToDatabase(query2, [username, email.trim()]);
 
     if (newUser.length === 0) {
       throw new BadRequestError("Có lỗi trong quá trình tạo tài khoản!");
@@ -71,33 +72,123 @@ class AccessService {
     };
   };
 
-  static login = async ({ username, password }: LoginParams): Promise<any> => {
-    // check user's information
+  static loginByUsername = async (
+    { username, password }: LoginByUsernameParams,
+    res: Response
+  ): Promise<any> => {
+    // Kiểm tra thông tin người dùng
+    if (!(await isExistUsername(username))) {
+      throw new AuthFailureError("Không tìm thấy tài khoản!");
+    }
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
     const [user] = await queryToDatabase(query1, [username]);
 
-    if (user.length === 0 || user[0].Password !== password)
+    if (
+      user.length === 0 ||
+      !(await compareFunction(password, user[0].Password))
+    )
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
-    // Create tokens's user
-    const dataToken = pickData({
-      fields: ["Username", "Email", "Roles", "isDeleted"],
-      object: user[0],
-    });
-    const tokens = await createTokenPair(dataToken);
+    // Tạo sessionID
+    const sessionID = createSession();
 
-    // Return user data
+    const AGE = 3 * 3600; // 3 hours
+
+    let query2 = `INSERT INTO sessions (sessionID, expiredAt, UserID) VALUES (?,?,?)`;
+    if (await isExistUserSession(user[0].UserID)) {
+      query2 = `UPDATE sessions SET sessionID =?, expiredAt =?, status=1 WHERE UserID =?`;
+    }
+    await queryToDatabase(query2, [
+      sessionID,
+      currentTimestamp + AGE,
+      user[0].UserID,
+    ]);
+
+    // Trả về thông tin người dùng
+    res.cookie("session", `${sessionID}`, {
+      maxAge: 3600,
+      httpOnly: true,
+      partitioned: true,
+      sameSite: true,
+      secure: true,
+      path: "/",
+    });
+
     return {
       user: pickData({
         fields: ["UserID", "Username", "Email", "Fullname", "Address", "coins"],
         object: user[0],
       }),
-      tokens,
     };
   };
 
-  static logout = async (): Promise<void> => {
-    // Thêm kiểu dữ liệu và trả về của hàm nếu cần
+  static loginByEmail = async (
+    { email, password }: LoginByEmailParams,
+    res: Response
+  ): Promise<any> => {
+    // Kiểm tra thông tin người dùng
+    if (!(await isExistEmail(email))) {
+      throw new AuthFailureError("Không tìm thấy tài khoản!");
+    }
+    const query1 = `SELECT * FROM users WHERE Email = ? AND isDeleted = 0`;
+    const [user] = await queryToDatabase(query1, [email]);
+
+    if (
+      user.length === 0 ||
+      !(await compareFunction(password, user[0].Password))
+    )
+      throw new AuthFailureError("Không tìm thấy tài khoản!");
+
+    // Tạo sessionID
+    const sessionID = createSession();
+
+    const AGE = 3 * 3600; // 3 hours
+
+    let query2 = `INSERT INTO sessions (sessionID, expiredAt, UserID) VALUES (?,?,?)`;
+    if (await isExistUserSession(user[0].UserID)) {
+      query2 = `UPDATE sessions SET sessionID =?, expiredAt =?, status=1 WHERE UserID =?`;
+    }
+    await queryToDatabase(query2, [
+      sessionID,
+      currentTimestamp + AGE,
+      user[0].UserID,
+    ]);
+
+    // Trả về thông tin người dùng
+
+    res.cookie("session", `${sessionID}`, {
+      maxAge: 3600,
+      httpOnly: true,
+      partitioned: true,
+      sameSite: true,
+      secure: true,
+      path: "/",
+    });
+
+    return {
+      user: pickData({
+        fields: ["UserID", "Username", "Email", "Fullname", "Address", "coins"],
+        object: user[0],
+      }),
+    };
+  };
+
+  static logout = async (req: Request, res: Response): Promise<any> => {
+    if (await isExpiredSession(req.cookies.session)) {
+      return {};
+    }
+
+    let query1 = `UPDATE sessions SET status = 0, expiredAt = 0 WHERE sessionID = ?`;
+
+    await queryToDatabase(query1, [req.cookies.session]);
+
+    //
+    res.cookie("session", "", {
+      maxAge: 0,
+    });
+    return {
+      message: "Đăng xuất thành công!",
+    };
   };
 
   static refreshToken = async ({

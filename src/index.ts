@@ -33,7 +33,17 @@ app.use(
     },
   })
 );
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://localhost:5173",
+      "https://ddung203.com:5173",
+    ],
+    credentials: true,
+  })
+);
+
 app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
@@ -53,6 +63,7 @@ app.get(
       'req.headers["sec-ch-ua-platform"] :>> ',
       req.headers["sec-ch-ua-platform"]
     );
+    console.log("req.cookies :>> ", req.cookies);
     logger.info(`\nOS:: ${req.headers["sec-ch-ua-platform"]}`);
     logger.info(`\nx-forwarded-port:: ${req.headers["x-forwarded-port"]}`);
     logger.info(`\nx-real-ip:: ${req.headers["x-real-ip"]}`);

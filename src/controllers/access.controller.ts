@@ -11,17 +11,32 @@ class AccessController {
     }).send(res);
   };
 
-  static login = async (req: Request, res: Response, next: NextFunction) => {
+  static loginByUsername = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     new SuccessResponse({
       message: "Login success!",
-      metadata: await AccessService.login(req.body),
+      metadata: await AccessService.loginByUsername(req.body, res),
+    }).send(res);
+  };
+
+  static loginByEmail = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Login success!",
+      metadata: await AccessService.loginByEmail(req.body, res),
     }).send(res);
   };
 
   static logout = async (req: Request, res: Response, next: NextFunction) => {
     new SuccessResponse({
       message: "Logout success!",
-      metadata: await AccessService.logout(),
+      metadata: await AccessService.logout(req, res),
     }).send(res);
   };
 

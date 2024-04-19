@@ -34,6 +34,7 @@ class SuccessResponse {
   }
 
   send(res: Response, header: any = {}) {
+    res.set(header);
     return res.status(this.status).json(this);
   }
 }
