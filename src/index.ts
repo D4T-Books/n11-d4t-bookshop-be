@@ -2,6 +2,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express, { Express, Request, Response, NextFunction } from "express";
+import path from "path";
 import router from "./routes/index.ts";
 import morgan from "morgan";
 import helmet from "helmet";
@@ -13,8 +14,6 @@ import { NotFoundError } from "./responses/error.response.ts";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger/swaggerOptions.ts";
 import cookieParser from "cookie-parser";
-import logger from "./configs/logger.config.ts";
-import path from "path";
 import { currentTimestamp } from "./utils/getCurrentTimestamp.ts";
 
 const app: Express = express();
@@ -56,32 +55,10 @@ app.use(
 );
 
 // Init router
-
-app.get(
-  "/v1/api/ping",
-  async (req: Request, res: Response, next: NextFunction): Promise<any> => {
-    console.log(
-      'req.headers["sec-ch-ua-platform"] :>> ',
-      req.headers["sec-ch-ua-platform"]
-    );
-    console.log("req.cookies :>> ", req.cookies);
-    logger.info(`\nOS:: ${req.headers["sec-ch-ua-platform"]}`);
-    logger.info(`\nx-forwarded-port:: ${req.headers["x-forwarded-port"]}`);
-    logger.info(`\nx-real-ip:: ${req.headers["x-real-ip"]}`);
-    logger.info(`\nuser-agent:: ${req.headers["user-agent"]}`);
-
-    return res.status(200).json({
-      status: "success",
-      message: "pong",
-    });
-  }
-);
-
 app.use("/", router);
-
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Handling errors
+//! Handling errors
 interface CustomError extends Error {
   status?: number;
 }

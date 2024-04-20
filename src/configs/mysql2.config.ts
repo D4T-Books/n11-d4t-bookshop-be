@@ -39,4 +39,25 @@ async function queryToDatabase(
   }
 }
 
-export { queryToDatabase };
+const testConnection = async (): Promise<boolean> => {
+  let connection;
+  try {
+    connection = await mysql.createConnection({
+      host: process.env.MYSQL_HOST || "127.0.0.1",
+      user: process.env.MYSQL_USER || "root",
+      password: process.env.MYSQL_PASSWORD || "",
+      database: process.env.MYSQL_DB_NAME || "d4t-bookshop-db",
+    });
+
+    if (connection) {
+      connection.end();
+      return true;
+    }
+  } catch (error) {
+    logger.error("Test Connection Error:: ", error);
+    return false;
+  }
+  return false;
+};
+
+export { testConnection, queryToDatabase };
