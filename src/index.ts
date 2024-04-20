@@ -15,6 +15,7 @@ import swaggerSpec from "./swagger/swaggerOptions.ts";
 import cookieParser from "cookie-parser";
 import logger from "./configs/logger.config.ts";
 import path from "path";
+import { currentTimestamp } from "./utils/getCurrentTimestamp.ts";
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -103,5 +104,7 @@ app.use(
 );
 
 app.listen(port, () => {
-  console.log(`[server]:: Server is running at http://localhost:${port}`);
+  console.log(
+    `[server] - [${currentTimestamp}]:: Server is running at http://localhost:${port}`
+  );
 });

@@ -16,4 +16,14 @@ router.get(
   asyncHandle(BookController.searchTop5BookByViews)
 );
 
+// ! For admin
+router.post("/book/add", asyncHandle(BookController.addBook));
+
+router.post("/book/toogle", asyncHandle(BookController.toggleShowBook));
+
+router.post(
+  "/book/create-bookmark",
+  asyncHandle(BookController.createBookmark)
+);
+
 export default router;

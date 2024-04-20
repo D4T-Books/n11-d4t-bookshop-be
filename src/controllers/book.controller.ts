@@ -36,6 +36,34 @@ class BookController {
       metadata: await BookService.searchTop5BookByViews(),
     }).send(res);
   };
+
+  static addBook = async (req: Request, res: Response, next: NextFunction) => {
+    new SuccessResponse({
+      message: "Add a new book success!",
+      metadata: await BookService.addBook(req.body),
+    }).send(res);
+  };
+
+  static toggleShowBook = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Add a new book success!",
+      metadata: await BookService.toggleShowBook(req.body),
+    }).send(res);
+  };
+  static createBookmark = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Add a bookmarks success!",
+      metadata: await BookService.createBookmark(req.body),
+    }).send(res);
+  };
 }
 
 export default BookController;

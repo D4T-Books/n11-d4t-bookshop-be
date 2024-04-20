@@ -1,0 +1,24 @@
+- validate input (joi)
+
+- api for admin
+admin
+admin@gmail.com
+admin
+
+- POST avatar img to firebase, get and save to user.avatarURL
+
+- write script convert  title_for_search from title => stringConversion => OK
+
+- create bookmarks => OK
+req.body: {
+  "Username": "dung1",
+  "title_for_search": "dac_nhan_tam",
+  "PageNumber": 2
+}
+Check qua title_for_search => OK
++ Nếu tạo trên cùng title_for_search thì UPDATE db, ngược lại INSERT 
+
+- get bookmarks
+
+- Kiểm tra thông tin sessionID gửi kèm trong cookie
+

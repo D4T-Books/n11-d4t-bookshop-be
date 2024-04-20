@@ -21,4 +21,35 @@ const isExistUserSession = async (UserID: any) => {
   return true;
 };
 
-export { isExistUsername, isExistEmail, isExistUserSession };
+const isExistBook = async (title_for_search: string) => {
+  const query1 = `SELECT * FROM books WHERE title_for_search = ?`;
+  const [existBook] = await queryToDatabase(query1, [title_for_search]);
+
+  if (existBook.length !== 0) return true;
+  return false;
+};
+
+const isExistBookID = async (BookID: string) => {
+  const query1 = `SELECT * FROM books WHERE BookID = ?`;
+  const [existBook] = await queryToDatabase(query1, [BookID]);
+
+  if (existBook.length !== 0) return true;
+  return false;
+};
+
+const isExistBookmark = async (title_for_search: string) => {
+  const query1 = `SELECT * FROM bookmarks WHERE title_for_search = ?`;
+  const [existBookmark] = await queryToDatabase(query1, [title_for_search]);
+
+  if (existBookmark.length !== 0) return true;
+  return false;
+};
+
+export {
+  isExistUsername,
+  isExistEmail,
+  isExistUserSession,
+  isExistBook,
+  isExistBookmark,
+  isExistBookID,
+};
