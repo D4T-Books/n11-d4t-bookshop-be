@@ -1,6 +1,8 @@
 import express from "express";
 import asyncHandle from "../helpers/asyncHandle.ts";
 import BookController from "../controllers/book.controller.ts";
+import { accessMiddleware } from "../middlewares/access.middleware.ts";
+import { authorizationMiddleware } from "../middlewares/authorization.middleware.ts";
 
 const router = express.Router();
 
@@ -17,12 +19,24 @@ router.get(
 );
 
 // ! For admin
-router.post("/book/add", asyncHandle(BookController.addBook));
+router.post(
+  "/book/add",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(BookController.addBook)
+);
 
-router.post("/book/toogle", asyncHandle(BookController.toggleShowBook));
+router.post(
+  "/book/toogle",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(BookController.toggleShowBook)
+);
 
 router.post(
   "/book/create-bookmark",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["U", "A"]),
   asyncHandle(BookController.createBookmark)
 );
 

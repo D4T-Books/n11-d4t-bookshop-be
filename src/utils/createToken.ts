@@ -6,19 +6,19 @@ const { sign, verify } = jwt;
 
 const createTokenPair = async (payload: any) => {
   try {
-    const keySecret: any = process.env.JWT_KEY;
+    const key: any = process.env.JWT_KEY;
 
-    const accessToken = sign(payload, keySecret, {
-      expiresIn: "2 days",
+    const accessToken = sign(payload, key, {
+      expiresIn: "1 days",
     });
 
-    const refreshToken = sign(payload, keySecret, {
+    const refreshToken = sign(payload, key, {
       expiresIn: "15 days",
     });
 
     return { accessToken, refreshToken };
   } catch (error) {
-    console.error("ERROR: Token creation failed!", error);
+    console.error("ERROR: Token creation failed! :: ", error);
     throw error;
   }
 };
@@ -26,6 +26,7 @@ const createTokenPair = async (payload: any) => {
 const verifyJWT = (token: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     const keySecret: string | undefined = process.env.JWT_KEY;
+
     if (!keySecret) {
       reject(new ForbiddenError("Không tìm thấy JWT_KEY!"));
       return;
@@ -35,7 +36,6 @@ const verifyJWT = (token: string): Promise<any> => {
       if (error) {
         reject(new ForbiddenError(`Token không hợp lệ (${error.message})!`));
       } else {
-        // console.log("decoded :>> ", decoded);
         resolve(decoded);
       }
     });

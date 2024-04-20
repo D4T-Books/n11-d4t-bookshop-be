@@ -36,7 +36,7 @@ class AccessController {
   static logout = async (req: Request, res: Response, next: NextFunction) => {
     new SuccessResponse({
       message: "Logout success!",
-      metadata: await AccessService.logout(req, res),
+      metadata: await AccessService.logout(req.body),
     }).send(res);
   };
 

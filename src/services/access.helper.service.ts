@@ -45,6 +45,11 @@ const isExistBookmark = async (title_for_search: string) => {
   return false;
 };
 
+const addTokenToBlackList = async (token: string) => {
+  const query = `INSERT INTO tokens (token) VALUES (?)`;
+  await queryToDatabase(query, [token]);
+};
+
 export {
   isExistUsername,
   isExistEmail,
@@ -52,4 +57,5 @@ export {
   isExistBook,
   isExistBookmark,
   isExistBookID,
+  addTokenToBlackList,
 };
