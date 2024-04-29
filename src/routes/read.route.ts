@@ -9,7 +9,7 @@ const router = express.Router();
 router.post(
   "/read",
   asyncHandle(accessMiddleware),
-  authorizationMiddleware(["u", "A"]),
+  authorizationMiddleware(["U", "A"]),
   asyncHandle(ReadController.readEachPage)
 );
 export default router;

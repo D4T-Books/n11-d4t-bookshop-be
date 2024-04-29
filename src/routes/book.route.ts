@@ -6,15 +6,15 @@ import { authorizationMiddleware } from "../middlewares/authorization.middleware
 
 const router = express.Router();
 
-router.get("/book/searchByName", asyncHandle(BookController.searchByName));
+router.post("/book/search-name", asyncHandle(BookController.searchByName));
 
-router.get(
-  "/book/searchByCategories",
+router.post(
+  "/book/search-category",
   asyncHandle(BookController.searchByCategories)
 );
 
 router.get(
-  "/book/top5views",
+  "/book/top-five-views",
   asyncHandle(BookController.searchTop5BookByViews)
 );
 
@@ -39,5 +39,14 @@ router.post(
   authorizationMiddleware(["U", "A"]),
   asyncHandle(BookController.createBookmark)
 );
+
+router.get(
+  "/book/list",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["U", "A"]),
+  asyncHandle(BookController.getAllBook)
+);
+
+router.post("/book/views/update", asyncHandle(BookController.updateBookView));
 
 export default router;

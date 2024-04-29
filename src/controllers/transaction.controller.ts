@@ -2,18 +2,41 @@ import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
 import { TransactionService } from "../services/index.ts";
+import { AuthenticatedRequest } from "../global/index.ts";
 
 class TransactionController {
-  static addCoins = async (req: Request, res: Response, next: NextFunction) => {
+  static addCoins = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
     new SuccessResponse({
       message: "Add Coins success!",
-      metadata: await TransactionService.addCoins(req.body),
+      metadata: await TransactionService.addCoins(req.user, req.body),
     }).send(res);
   };
-  static useCoins = async (req: Request, res: Response, next: NextFunction) => {
+  static useCoins = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
     new SuccessResponse({
       message: "Pay success!",
-      metadata: await TransactionService.useCoins(req.body),
+      metadata: await TransactionService.useCoins(req.user, req.body),
+    }).send(res);
+  };
+
+  static getList = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Pay success!",
+      metadata: await TransactionService.getListTransactionByUsername(
+        req.user,
+        req.body
+      ),
     }).send(res);
   };
 }

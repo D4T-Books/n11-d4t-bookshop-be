@@ -50,7 +50,7 @@ class BookController {
     next: NextFunction
   ) => {
     new SuccessResponse({
-      message: "Add a new book success!",
+      message: "Toggle show book success!",
       metadata: await BookService.toggleShowBook(req.body),
     }).send(res);
   };
@@ -60,8 +60,28 @@ class BookController {
     next: NextFunction
   ) => {
     new SuccessResponse({
-      message: "Add a bookmarks success!",
+      message: "Create a bookmarks success!",
       metadata: await BookService.createBookmark(req.body),
+    }).send(res);
+  };
+  static getAllBook = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Get all books success!",
+      metadata: await BookService.getAllBook(),
+    }).send(res);
+  };
+  static updateBookView = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Update Book View success!",
+      metadata: await BookService.updateBookView(req.body),
     }).send(res);
   };
 }

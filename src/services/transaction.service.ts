@@ -21,25 +21,15 @@ type useCoinsParams = {
 };
 
 class TransactionService {
-  static addCoins = async ({
-    username,
-    voucherCode,
-  }: addCoinsParams): Promise<any> => {
-    /*
-      1. Kiem tra user co ton tai khong
-
-      2. Kiem tra voucherCode co tai khong, neu co thi con thoi han khong
-
-      3. Tang so luong xu trong bang users
-
-      4. Them lich su giao dich
-    */
-
+  static addCoins = async (
+    { Username }: { Username: string },
+    { voucherCode }: addCoinsParams
+  ): Promise<any> => {
     //! 1. Kiem tra user co ton tai khong
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
-    const [existUser] = await queryToDatabase(query1, [username]);
+    const [existUser] = await queryToDatabase(query1, [Username]);
 
-    if (existUser.length === 0 || existUser[0].Username !== username)
+    if (existUser.length === 0 || existUser[0].Username !== Username)
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
     //! 2. Kiem tra voucherCode co tai khong, neu co thi con thoi han khong
@@ -62,7 +52,7 @@ class TransactionService {
     //! 3. Tăng số lượng xu trong bảng users
     const query3 = `UPDATE users SET coins = coins + ? WHERE Username = ?`;
     const coinsToAdd = existVoucher[0].Amount;
-    await queryToDatabase(query3, [coinsToAdd, username]);
+    await queryToDatabase(query3, [coinsToAdd, Username]);
 
     //! 4. Thêm lịch sử giao dịch vào bảng transactions
     const query4 = `INSERT INTO transactions 
@@ -83,14 +73,15 @@ class TransactionService {
     const [newTransaction] = await queryToDatabase(query5, [tradingCode]);
 
     return {
+      Username,
       newTransaction,
     };
   };
 
-  static useCoins = async ({
-    username,
-    numberOfCoins,
-  }: useCoinsParams): Promise<any> => {
+  static useCoins = async (
+    { Username }: { Username: string },
+    { numberOfCoins }: useCoinsParams
+  ): Promise<any> => {
     /*
       1. Kiem tra user co ton tai khong
 
@@ -101,9 +92,9 @@ class TransactionService {
 
     //! 1. Kiem tra user co ton tai khong
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
-    const [existUser] = await queryToDatabase(query1, [username]);
+    const [existUser] = await queryToDatabase(query1, [Username]);
 
-    if (existUser.length === 0 || existUser[0].Username !== username)
+    if (existUser.length === 0 || existUser[0].Username !== Username)
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
     if (existUser[0].coins < 0 || existUser[0].coins < numberOfCoins)
@@ -111,7 +102,7 @@ class TransactionService {
 
     //! 2. Giảm số lượng xu trong bảng users
     const query3 = `UPDATE users SET coins = coins - ? WHERE Username = ?`;
-    await queryToDatabase(query3, [numberOfCoins, username]);
+    await queryToDatabase(query3, [numberOfCoins, Username]);
 
     //! 3. Thêm lịch sử giao dịch vào bảng transactions
     const query4 = `INSERT INTO transactions 
@@ -132,7 +123,7 @@ class TransactionService {
     const [newTransaction] = await queryToDatabase(query5, [tradingCode]);
 
     const query6 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
-    const [userAfterPay] = await queryToDatabase(query6, [username]);
+    const [userAfterPay] = await queryToDatabase(query6, [Username]);
 
     return {
       user: pickData({
@@ -143,16 +134,16 @@ class TransactionService {
     };
   };
 
-  static getTransactionByUsername = async ({
-    username,
+  static getListTransactionByUsername0 = async ({
+    Username,
   }: {
-    username: string;
+    Username: string;
   }): Promise<any> => {
     //! 1. Kiem tra user co ton tai khong
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
-    const [existUser] = await queryToDatabase(query1, [username]);
+    const [existUser] = await queryToDatabase(query1, [Username]);
 
-    if (existUser.length === 0 || existUser[0].Username !== username)
+    if (existUser.length === 0 || existUser[0].Username !== Username)
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
     //! 2. Get 10 latest transaction
@@ -163,6 +154,48 @@ class TransactionService {
       transactions,
     };
   };
+
+  static async getListTransactionByUsername(
+    {
+      Username,
+    }: {
+      Username: string;
+    },
+    { Page = 1, Limit = 10 }
+  ): Promise<{ transactions: any[]; total: number }> {
+    // 1. Check if user exists
+    const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
+    const [existUser] = await queryToDatabase(query1, [Username]);
+
+    if (existUser.length === 0 || existUser[0].Username !== Username) {
+      throw new AuthFailureError("Không tìm thấy tài khoản!");
+    }
+
+    // 2. Calculate offset based on page and limit
+    const offset = (Page - 1) * Limit;
+
+    // 3. Retrieve transactions with pagination
+    const query2 = `
+      SELECT *
+      FROM transactions
+      WHERE UserID = ?
+      ORDER BY TransactionDate DESC
+      LIMIT ?, ?`;
+    const [transactions] = await queryToDatabase(query2, [
+      existUser[0].UserID,
+      offset,
+      Limit,
+    ]);
+
+    // 4. Get total transaction count (optional but recommended)
+    const query3 = `SELECT COUNT(*) AS total FROM transactions WHERE UserID = ?`;
+    const [[{ total }]] = await queryToDatabase(query3, [existUser[0].UserID]);
+
+    return {
+      transactions,
+      total: total || 0, // Handle potential null value from query3
+    };
+  }
 }
 
 export default TransactionService;

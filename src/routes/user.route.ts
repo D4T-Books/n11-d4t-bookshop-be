@@ -12,26 +12,28 @@ router.get(
   authorizationMiddleware(["A"]),
   asyncHandle(UserController.getAllUser)
 );
-router.get(
+
+router.post(
   "/user/getByUsername",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["U", "A"]),
   asyncHandle(UserController.getByUsername)
 );
-router.get(
+
+router.post(
   "/user/getById",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["A"]),
   asyncHandle(UserController.getById)
 );
 
-router.get(
+router.post(
   "/user/deleteByUsername",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["A"]),
   asyncHandle(UserController.deleteUserByUsername)
 );
-router.get(
+router.post(
   "/user/deleteById",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["A"]),

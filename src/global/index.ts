@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 enum TransactionType {
   NAP = "NAP_XU",
   PAY = "THANH_TOAN",
@@ -13,4 +15,8 @@ enum LogLevels {
   silly = 6,
 }
 
-export { TransactionType, LogLevels };
+interface AuthenticatedRequest extends Request {
+  user?: any;
+}
+
+export { TransactionType, LogLevels, AuthenticatedRequest };

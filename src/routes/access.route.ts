@@ -10,6 +10,7 @@ router.post(
   asyncHandle(AccessController.loginByUsername)
 );
 router.post("/access/login-email", asyncHandle(AccessController.loginByEmail));
+
 router.post("/access/logout", asyncHandle(AccessController.logout));
 
 router.post("/access/refresh", asyncHandle(AccessController.refreshToken));

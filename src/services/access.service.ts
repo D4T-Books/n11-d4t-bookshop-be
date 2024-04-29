@@ -6,14 +6,11 @@ import {
   AuthFailureError,
   BadRequestError,
 } from "../responses/error.response.ts";
-import { createSession, isExpiredSession } from "../utils/createSession.ts";
 import { createTokenPair, verifyJWT } from "../utils/createToken.ts";
-import { currentTimestamp } from "../utils/getCurrentTimestamp.ts";
 import { pickData } from "../utils/pick.ts";
 import {
   addTokenToBlackList,
   isExistEmail,
-  isExistUserSession,
   isExistUsername,
 } from "./access.helper.service.ts";
 import { Request, Response } from "express";

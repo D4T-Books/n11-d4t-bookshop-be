@@ -7,6 +7,7 @@ import {
 } from "../responses/error.response.ts";
 import { pickData } from "../utils/pick.ts";
 import generateRandomNumber from "../utils/generateRandomNumber.ts";
+import { isExist } from "./access.helper.service.ts";
 
 type addCommentParams = {
   username: string;
@@ -25,16 +26,6 @@ class CommentService {
     BookID,
     Content,
   }: addCommentParams): Promise<any> => {
-    /*
-      1. Kiem tra user co ton tai khong
-
-      2. Kiem tra sách co ton tai khong
-
-      3. Tạo comment mới
-
-      4. Return ket qua
-    */
-
     //! 1. Kiem tra user co ton tai khong
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
     const [existUser] = await queryToDatabase(query1, [username]);
@@ -43,10 +34,8 @@ class CommentService {
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
     //! 2. Kiem tra sách co ton tai khong
-    const query2 = `SELECT * FROM books WHERE BookID = ?`;
-    const [existBook] = await queryToDatabase(query2, [BookID]);
 
-    if (existBook.length === 0)
+    if (!(await isExist("books", "BookID", BookID)))
       throw new AuthFailureError(
         "Sách này không còn tồn tại! Không thể bình luận!"
       );
@@ -80,10 +69,8 @@ class CommentService {
     numberComment = 10,
   }: getCommentsByBookIDParams) => {
     //! 1. Kiem tra sách co ton tai khong
-    const query1 = `SELECT * FROM books WHERE BookID = ?`;
-    const [existBook] = await queryToDatabase(query1, [BookID]);
 
-    if (existBook.length === 0)
+    if (!(await isExist("books", "BookID", BookID)))
       throw new AuthFailureError(
         "Sách này không còn tồn tại! Không thể lấy bình luận!"
       );

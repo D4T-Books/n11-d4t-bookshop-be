@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
 import { CommentService } from "../services/index.ts";
-
+import AuthenticatedRequest from "./../global/AuthenticatedRequest";
 class CommentController {
   static createComment = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {

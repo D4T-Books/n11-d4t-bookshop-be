@@ -20,4 +20,11 @@ router.post(
   asyncHandle(TransactionController.useCoins)
 );
 
+router.post(
+  "/transaction/list",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A", "U"]),
+  asyncHandle(TransactionController.getList)
+);
+
 export default router;
