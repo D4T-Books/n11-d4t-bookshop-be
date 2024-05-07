@@ -1,3 +1,4 @@
+import logger from "../configs/logger.config.ts";
 import { queryToDatabase } from "../configs/mysql2.config.ts";
 import { hashFunction, compareFunction } from "../helpers/bcryptHandle.ts";
 import { isTokenInBlackList } from "../middlewares/helper.middleware.ts";
@@ -42,6 +43,12 @@ class AccessService {
     fullname,
     password,
   }: RegisterParams): Promise<Record<string, any>> => {
+    logger.info(`{ email, fullname,password } :>> `, {
+      email,
+      fullname,
+      password,
+    });
+
     if (await isExistEmail(email))
       throw new ConflictRequestError("Email đã được sử dụng!");
 
@@ -75,6 +82,7 @@ class AccessService {
     { username, password }: LoginByUsernameParams,
     res: Response
   ): Promise<any> => {
+    logger.info(`{ username, password } :>> `, { username, password });
     if (!(await isExistUsername(username))) {
       throw new AuthFailureError("Không tìm thấy tài khoản!");
     }
@@ -107,6 +115,8 @@ class AccessService {
     { email, password }: LoginByEmailParams,
     res: Response
   ): Promise<any> => {
+    logger.info(`{ email, password } :>> `, { email, password });
+
     //! Kiểm tra thông tin đăng nhập
     if (!(await isExistEmail(email))) {
       throw new AuthFailureError("Không tìm thấy tài khoản!");

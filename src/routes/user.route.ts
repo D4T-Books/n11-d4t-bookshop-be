@@ -40,11 +40,13 @@ router.post(
   asyncHandle(UserController.deleteUserById)
 );
 
-router.put(
-  "/user/update",
-  asyncHandle(accessMiddleware),
-  authorizationMiddleware(["U", "A"]),
-  asyncHandle(UserController.update)
-);
+// router.put(
+//   "/user/update",
+//   asyncHandle(accessMiddleware),
+//   authorizationMiddleware(["U", "A"]),
+//   asyncHandle(UserController.update)
+// );
+
+router.put("/user/update", asyncHandle(UserController.update));
 
 export default router;

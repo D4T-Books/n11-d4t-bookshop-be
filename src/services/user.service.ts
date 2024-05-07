@@ -103,8 +103,8 @@ class UserService {
     if (Gender?.trim().length === 0) Gender = existUser[0].Gender;
     if (Birthday?.trim().length === 0) Birthday = existUser[0].Birthday;
     const query2 = `UPDATE users 
-    SET users.FullName = ?, users.Gender = ?, users.Birthday = ?, UpdatedAt = ?
-    WHERE user.Username = ?
+    SET FullName = ?, Gender = ?, Birthday = ?, UpdatedAt = ?
+    WHERE Username = ?
     `;
 
     const [updateUser] = await queryToDatabase(query2, [
