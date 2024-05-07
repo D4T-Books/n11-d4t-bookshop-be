@@ -14,6 +14,7 @@ const accessMiddleware = async (
   next: NextFunction
 ) => {
   const token = req.headers.authorization?.slice(7);
+
   if (!token || (await isTokenInBlackList(token))) {
     throw new ForbiddenError("Token không hợp lệ!");
   }

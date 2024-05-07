@@ -16,6 +16,7 @@ type updateUserParams = {
   FullName?: string;
   Gender?: string;
   Birthday?: string;
+  phone?: string;
 };
 
 class UserService {
@@ -90,6 +91,7 @@ class UserService {
     FullName,
     Gender,
     Birthday,
+    phone,
   }: updateUserParams): Promise<any> => {
     //! 1. Kiem tra user co ton tai khong
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
@@ -103,7 +105,7 @@ class UserService {
     if (Gender?.trim().length === 0) Gender = existUser[0].Gender;
     if (Birthday?.trim().length === 0) Birthday = existUser[0].Birthday;
     const query2 = `UPDATE users 
-    SET FullName = ?, Gender = ?, Birthday = ?, UpdatedAt = ?
+    SET FullName = ?, Gender = ?, Birthday = ?,phone = ?, UpdatedAt = ?
     WHERE Username = ?
     `;
 
@@ -111,6 +113,7 @@ class UserService {
       FullName,
       Gender,
       Birthday,
+      phone,
       currentTimestamp,
       username,
     ]);
@@ -127,6 +130,7 @@ class UserService {
           "Fullname",
           "Gender",
           "Birthday",
+          "phone",
           "Address",
           "coins",
           "UpdatedAt",
