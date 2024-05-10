@@ -162,7 +162,7 @@ class TransactionService {
       Username: string;
     },
     { Page = 1, Limit = 10 }
-  ): Promise<{ transactions: any[]; total: number }> {
+  ): Promise<{ transactions: any[]; coins: number; total: number }> {
     // 1. Check if user exists
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
     const [existUser] = await queryToDatabase(query1, [Username]);
@@ -193,7 +193,25 @@ class TransactionService {
 
     return {
       transactions,
+      coins: existUser[0].coins,
       total: total || 0, // Handle potential null value from query3
+    };
+  }
+  static async getCurrentCoins({
+    Username,
+  }: {
+    Username: string;
+  }): Promise<{ coins: number }> {
+    // 1. Check if user exists
+    const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
+    const [existUser] = await queryToDatabase(query1, [Username]);
+
+    if (existUser.length === 0 || existUser[0].Username !== Username) {
+      throw new AuthFailureError("Không tìm thấy tài khoản!");
+    }
+
+    return {
+      coins: existUser[0].coins,
     };
   }
 }

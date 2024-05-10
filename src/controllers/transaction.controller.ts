@@ -32,11 +32,22 @@ class TransactionController {
     next: NextFunction
   ) => {
     new SuccessResponse({
-      message: "Pay success!",
+      message: "Get Transactions List success!",
       metadata: await TransactionService.getListTransactionByUsername(
         req.user,
         req.body
       ),
+    }).send(res);
+  };
+
+  static getCurrentCoins = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Get Current Coins success!",
+      metadata: await TransactionService.getCurrentCoins(req.user),
     }).send(res);
   };
 }

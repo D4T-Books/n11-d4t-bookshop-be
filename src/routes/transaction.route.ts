@@ -27,4 +27,11 @@ router.post(
   asyncHandle(TransactionController.getList)
 );
 
+router.get(
+  "/transaction/coins",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A", "U"]),
+  asyncHandle(TransactionController.getCurrentCoins)
+);
+
 export default router;

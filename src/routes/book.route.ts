@@ -9,6 +9,11 @@ const router = express.Router();
 router.post("/book/search-name", asyncHandle(BookController.searchByName));
 
 router.post(
+  "/book/search-tag-name",
+  asyncHandle(BookController.searchByTagName)
+);
+
+router.post(
   "/book/search-category",
   asyncHandle(BookController.searchByCategories)
 );
@@ -17,6 +22,10 @@ router.get(
   "/book/top-five-views",
   asyncHandle(BookController.searchTop5BookByViews)
 );
+
+router.get("/book/top-six-new", asyncHandle(BookController.searchTop6NewBooks));
+
+router.get("/book/free", asyncHandle(BookController.searchTop6FreeBooks));
 
 // ! For admin
 router.post(
@@ -38,6 +47,13 @@ router.post(
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["U", "A"]),
   asyncHandle(BookController.createBookmark)
+);
+
+router.post(
+  "/book/bookmarks",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["U", "A"]),
+  asyncHandle(BookController.getBookmarksByTitle)
 );
 
 router.get(

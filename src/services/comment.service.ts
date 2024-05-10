@@ -16,7 +16,7 @@ type addCommentParams = {
 };
 
 type getCommentsByBookIDParams = {
-  BookID: string;
+  title_for_search: string;
   numberComment?: number;
 };
 
@@ -63,14 +63,14 @@ class CommentService {
     };
   };
 
-  //! Get the number of the latest comments by BookID
+  //! Get the number of the latest comments by title_for_search
   static getComments = async ({
-    BookID,
+    title_for_search,
     numberComment = 10,
   }: getCommentsByBookIDParams) => {
     //! 1. Kiem tra sách co ton tai khong
 
-    if (!(await isExist("books", "BookID", BookID)))
+    if (!(await isExist("books", "title_for_search", title_for_search)))
       throw new AuthFailureError(
         "Sách này không còn tồn tại! Không thể lấy bình luận!"
       );
@@ -87,10 +87,14 @@ class CommentService {
       );
 
     // Retrieve comments from the database
-    let query2 = `SELECT * FROM comments WHERE BookID = ? ORDER BY comments.ID DESC
-      LIMIT ${numberComment}`;
-    const [comments] = await queryToDatabase(query2, [BookID]);
-
+    let query2 = `SELECT * 
+    FROM comments 
+    INNER JOIN books ON comments.BookID = books.BookID
+    WHERE books.title_for_search = ? 
+    ORDER BY comments.ID DESC
+    LIMIT ${numberComment}`;
+    const [comments] = await queryToDatabase(query2, [title_for_search]);
+    console.log("comments :>> ", comments);
     return {
       comments,
     };

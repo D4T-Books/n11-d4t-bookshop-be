@@ -33,16 +33,30 @@ app.use(
     },
   })
 );
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://localhost:5173",
-      "https://ddung203.com:5173",
-    ],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:5173",
+//       "http://localhost:5174",
+//       "https://localhost:5173",
+//       "https://ddung203.com:5173",
+//     ],
+//     credentials: true,
+//   })
+// );
+
+const whitelist = ["http://localhost:5173", "http://localhost:5174"];
+const corsOptions = {
+  origin: function (origin: any, callback: any) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 
 app.use(compression());
 app.use(express.json());

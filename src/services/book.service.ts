@@ -45,6 +45,22 @@ class BookService {
     };
   };
 
+  static searchByTagName = async ({
+    title,
+  }: searchByNameParams): Promise<any> => {
+    const query1 = `
+    SELECT * 
+    FROM books 
+    WHERE title_for_search 
+    LIKE '%${title}%' `;
+
+    const [books] = await queryToDatabase(query1, [title]);
+
+    return {
+      book: books[0],
+    };
+  };
+
   static searchByCategories = async ({
     category,
   }: {
@@ -72,9 +88,36 @@ class BookService {
     SELECT * 
     FROM books 
     WHERE isShowBook = 1 
-    ORDER BY Views DESC LIMIT 5`;
+    ORDER BY Views DESC LIMIT 6`;
+
     const [books] = await queryToDatabase(query1, []);
 
+    return {
+      books,
+    };
+  };
+
+  static searchTop6NewBooks = async (): Promise<any> => {
+    const query1 = `
+    SELECT * 
+    FROM books 
+    WHERE isShowBook = 1 
+    ORDER BY publication_year DESC LIMIT 6`;
+
+    const [books] = await queryToDatabase(query1, []);
+    return {
+      books,
+    };
+  };
+
+  static searchTop6FreeBooks = async (): Promise<any> => {
+    const query1 = `
+    SELECT * 
+    FROM books 
+    WHERE isShowBook = 1 AND Price = 0
+    ORDER BY publication_year DESC LIMIT 6`;
+
+    const [books] = await queryToDatabase(query1, []);
     return {
       books,
     };
@@ -197,6 +240,25 @@ class BookService {
     const [newBookmark] = await queryToDatabase(query3, [title_for_search]);
     return {
       newBookmark: newBookmark[0],
+    };
+  };
+
+  static getBookmarksByTitle = async (
+    { Username }: { Username: string },
+    { title_for_search }: { title_for_search: string }
+  ): Promise<any> => {
+    const query = `
+      SELECT * 
+      FROM bookmarks 
+      WHERE title_for_search = ? AND Username = ?
+      ORDER BY id DESC`;
+
+    const [bookmarks] = await queryToDatabase(query, [
+      title_for_search,
+      Username,
+    ]);
+    return {
+      bookmarks: bookmarks,
     };
   };
 

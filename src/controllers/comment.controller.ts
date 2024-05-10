@@ -21,7 +21,7 @@ class CommentController {
     next: NextFunction
   ) => {
     new SuccessResponse({
-      message: "Add a new comment success!",
+      message: "Get list comment success!",
       metadata: await CommentService.getComments(req.body),
     }).send(res);
   };
