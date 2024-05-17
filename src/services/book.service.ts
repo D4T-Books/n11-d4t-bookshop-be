@@ -18,13 +18,13 @@ type searchByNameParams = {
 };
 type addBookParams = {
   Title: string;
-  title_for_search: string;
   CoverURL: string;
   Author: string;
   Description: string;
   Categories: string;
   PageNumber: number;
   Price: number;
+  language: string;
 };
 
 //  books (Title, title_for_search, CoverURL, Author, Description, Categories, PageNumber, Price)
@@ -126,18 +126,19 @@ class BookService {
   // ! ADMIN ONLY
   static addBook = async ({
     Title,
-    title_for_search,
     CoverURL,
     Author,
     Description,
     Categories,
     PageNumber,
     Price,
+    language,
   }: addBookParams): Promise<any> => {
+    const title_for_search = stringConversion(Title);
     if (await isExistBook(title_for_search)) {
       throw new ConflictRequestError("Tên sách đã tồn tại!");
     }
-    const query1 = `INSERT INTO books (Title, title_for_search, CoverURL, Author, Description, Categories, PageNumber, Price) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`;
+    const query1 = `INSERT INTO books (Title, title_for_search, CoverURL, Author, Description, Categories, PageNumber, Price, language) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
     await queryToDatabase(query1, [
       Title,
@@ -148,6 +149,7 @@ class BookService {
       Categories,
       PageNumber,
       Price,
+      language,
     ]);
 
     const query2 = `SELECT * FROM books WHERE title_for_search = ?`;
@@ -164,30 +166,37 @@ class BookService {
   }: {
     title_for_search: string;
   }): Promise<any> => {
-    if (!(await isExistBook(title_for_search))) {
-      throw new BadRequestError("Truy vấn đến sách không tồn tại!");
+    try {
+      // console.log("title_for_search :>> ", title_for_search);
+      if (!(await isExistBook(title_for_search))) {
+        throw new BadRequestError("Truy vấn đến sách không tồn tại!");
+      }
+      const query1 = `SELECT * FROM books WHERE title_for_search = ?`;
+
+      let [book] = await queryToDatabase(query1, [title_for_search]);
+
+      if (book.length > 0 && book[0].isShowBook == 1) {
+        console.log("HERE");
+        await queryToDatabase(
+          "UPDATE books SET isShowBook = 0 WHERE title_for_search = ?",
+          [title_for_search]
+        );
+      } else if (book.length > 0 && book[0].isShowBook == 0) {
+        await queryToDatabase(
+          "UPDATE books SET isShowBook = 1 WHERE title_for_search = ?",
+          [title_for_search]
+        );
+      }
+
+      [book] = await queryToDatabase(query1, [title_for_search]);
+
+      return {
+        book: book[0],
+      };
+    } catch (error) {
+      console.log("error :>> ", error);
+      return {};
     }
-    const query1 = `SELECT * FROM books WHERE title_for_search = ?`;
-
-    let [book] = await queryToDatabase(query1, [title_for_search]);
-
-    if (book.length > 0 && book[0].isShowBook == 1) {
-      await queryToDatabase(
-        "UPDATE books SET isShowBook = 0 WHERE title_for_search = ?",
-        [title_for_search]
-      );
-    } else if (book.length > 0 && book[0].isShowBook == 0) {
-      await queryToDatabase(
-        "UPDATE books SET isShowBook = 1 WHERE title_for_search = ?",
-        [title_for_search]
-      );
-    }
-
-    [book] = await queryToDatabase(query1, [title_for_search]);
-
-    return {
-      book: book[0],
-    };
   };
 
   static createBookmark = async ({

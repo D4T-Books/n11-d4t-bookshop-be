@@ -6,6 +6,7 @@ import bookRouter from "./book.route";
 import userRouter from "./user.route";
 import readRouter from "./read.route";
 import pingRouter from "./ping.route";
+import adminRouter from "./admin/admin.route";
 
 const router: Router = express.Router();
 
@@ -16,5 +17,7 @@ router.use("/v1/api", bookRouter);
 router.use("/v1/api", userRouter);
 router.use("/v1/api", readRouter);
 router.use("/v1/api", pingRouter);
+
+router.use("/v1/api", adminRouter);
 
 export default router;

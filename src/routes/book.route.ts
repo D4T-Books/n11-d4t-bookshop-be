@@ -29,14 +29,14 @@ router.get("/book/free", asyncHandle(BookController.searchTop6FreeBooks));
 
 // ! For admin
 router.post(
-  "/book/add",
+  "/admin/book/add",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["A"]),
   asyncHandle(BookController.addBook)
 );
 
 router.post(
-  "/book/toogle",
+  "/admin/book/toogle",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["A"]),
   asyncHandle(BookController.toggleShowBook)
