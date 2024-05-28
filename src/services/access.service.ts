@@ -104,7 +104,15 @@ class AccessService {
 
     return {
       user: pickData({
-        fields: ["UserID", "Username", "FullName", "Email", "Address", "coins"],
+        fields: [
+          "UserID",
+          "Username",
+          "FullName",
+          "Email",
+          "Address",
+          "coins",
+          "Roles",
+        ],
         object: user[0],
       }),
       tokens,
@@ -139,7 +147,15 @@ class AccessService {
 
     return {
       user: pickData({
-        fields: ["UserID", "Username", "FullName", "Email", "Address", "coins"],
+        fields: [
+          "UserID",
+          "Username",
+          "FullName",
+          "Email",
+          "Address",
+          "coins",
+          "Roles",
+        ],
         object: user[0],
       }),
       tokens,

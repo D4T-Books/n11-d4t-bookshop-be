@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import asyncHandle from "../../helpers/asyncHandle.ts";
 import AdminController from "../../controllers/admin/admin.controller.ts";
 import { accessMiddleware } from "../../middlewares/access.middleware.ts";
@@ -7,10 +7,38 @@ import { authorizationMiddleware } from "../../middlewares/authorization.middlew
 const router = express.Router();
 
 router.get(
+  "/admin/test/ok",
+  (req: Request, res: Response, next: NextFunction): any => {
+    return res.status(200).json("ok");
+  }
+);
+
+router.get(
   "/admin/users",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["A"]),
   asyncHandle(AdminController.getListUser)
+);
+
+router.get(
+  "/admin/users/count",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.countUser)
+);
+
+router.get(
+  "/admin/books/count",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.countBook)
+);
+
+router.get(
+  "/admin/transactions/count",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.countTransaction)
 );
 
 router.post(

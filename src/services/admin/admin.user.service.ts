@@ -51,6 +51,34 @@ class AdminUserService {
     };
   };
 
+  static countUser = async () => {
+    const query1 = `SELECT COUNT(*) AS totalUser FROM users WHERE isDeleted = 0`;
+    const [totalUser] = await queryToDatabase(query1, []);
+
+    return {
+      totalUser: totalUser[0].totalUser,
+    };
+  };
+
+  static countBook = async () => {
+    const query1 = `SELECT COUNT(*) AS totalBook FROM books WHERE isShowBook = 1`;
+    const [totalBook] = await queryToDatabase(query1, []);
+
+    return {
+      totalBook: totalBook[0].totalBook,
+    };
+  };
+
+  static countTransaction = async () => {
+    const query1 = `SELECT COUNT(*) AS totalTransaction FROM transactions 
+    WHERE DATE(TransactionDate) = CURRENT_DATE`;
+    const [totalTransaction] = await queryToDatabase(query1, []);
+
+    return {
+      totalTransaction: totalTransaction[0].totalTransaction,
+    };
+  };
+
   static getUserById = async ({ UserID }: { UserID: number }) => {
     const query1 = `SELECT * FROM users WHERE UserID = ?`;
     const [user] = await queryToDatabase(query1, [UserID]);

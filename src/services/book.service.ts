@@ -199,14 +199,17 @@ class BookService {
     }
   };
 
+  //! Create Bookmarks
   static createBookmark = async ({
     title_for_search,
     Username,
     PageNumber,
+    clickPositionY,
   }: {
     title_for_search: string;
     Username: string;
     PageNumber: number;
+    clickPositionY: number;
   }): Promise<any> => {
     if (!(await isExistBook(title_for_search))) {
       throw new BadRequestError("Sách không tồn tại!");
@@ -215,38 +218,68 @@ class BookService {
     if (!(await isExistUsername(Username))) {
       throw new BadRequestError("Người dùng không tồn tại!");
     }
+
     const query1 = `
-    SELECT * 
-    FROM books 
-    WHERE title_for_search = ?`;
+      SELECT PageNumber 
+      FROM books 
+      WHERE title_for_search = ?`;
 
-    let [book] = await queryToDatabase(query1, [title_for_search]);
+    const [book] = await queryToDatabase(query1, [title_for_search]);
 
-    if (book[0].PageNumber < PageNumber) {
+    if (!book || book.length === 0 || book[0].PageNumber < PageNumber) {
       throw new BadRequestError("Số trang không hợp lệ!");
     }
 
-    if (await isExistBookmark(title_for_search)) {
-      const query = `
-      UPDATE bookmarks 
-      SET PageNumber = ? 
+    const query2 = `
+      SELECT * 
+      FROM bookmarks 
       WHERE title_for_search = ? AND Username = ?`;
 
-      await queryToDatabase(query, [PageNumber, title_for_search, Username]);
+    const [existingBookmark] = await queryToDatabase(query2, [
+      title_for_search,
+      Username,
+    ]);
+
+    if (existingBookmark && existingBookmark.length > 0) {
+      const query3 = `
+        UPDATE bookmarks 
+        SET PageNumber = ?, clickPositionY = ? 
+        WHERE title_for_search = ? AND Username = ?`;
+
+      await queryToDatabase(query3, [
+        PageNumber,
+        clickPositionY,
+        title_for_search,
+        Username,
+      ]);
     } else {
-      const query2 = `
-      INSERT INTO bookmarks (title_for_search, Username, PageNumber) 
-      VALUES (?,?,?)`;
-      await queryToDatabase(query2, [title_for_search, Username, PageNumber]);
+      const query4 = `
+        INSERT INTO bookmarks (title_for_search, Username, PageNumber, clickPositionY) 
+        VALUES (?,?,?,?)`;
+      await queryToDatabase(query4, [
+        title_for_search,
+        Username,
+        PageNumber,
+        clickPositionY,
+      ]);
     }
 
-    const query3 = `
-    SELECT * 
-    FROM bookmarks 
-    WHERE title_for_search = ? 
-    ORDER BY id DESC`;
+    const query5 = `
+      SELECT * 
+      FROM bookmarks 
+      WHERE title_for_search = ? AND Username = ? 
+      ORDER BY id DESC`;
 
-    const [newBookmark] = await queryToDatabase(query3, [title_for_search]);
+    const [newBookmark] = await queryToDatabase(query5, [
+      title_for_search,
+      Username,
+    ]);
+
+    if (!newBookmark || newBookmark.length === 0) {
+      throw new Error("Đã xảy ra lỗi trong quá trình tạo bookmark.");
+    }
+
+    console.log("newBookmark :>> ", newBookmark[0]);
     return {
       newBookmark: newBookmark[0],
     };

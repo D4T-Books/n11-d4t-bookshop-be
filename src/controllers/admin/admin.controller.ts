@@ -18,6 +18,39 @@ class AdminController {
     }).send(res);
   };
 
+  static countUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Count user success!",
+      metadata: await AdminUserService.countUser(),
+    }).send(res);
+  };
+
+  static countBook = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Count book success!",
+      metadata: await AdminUserService.countBook(),
+    }).send(res);
+  };
+
+  static countTransaction = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Count transaction success!",
+      metadata: await AdminUserService.countTransaction(),
+    }).send(res);
+  };
+
   static deleteUserByUsername = async (
     req: AuthenticatedRequest,
     res: Response,

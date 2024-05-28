@@ -38,7 +38,7 @@ class TransactionService {
     const [existVoucher] = await queryToDatabase(query2, [voucherCode]);
 
     if (existVoucher.length === 0) {
-      throw new AuthFailureError("Mã voucher không hợp lệ hoặc đã hết hạn!");
+      throw new BadRequestError("Mã voucher không hợp lệ hoặc đã hết hạn!");
     }
 
     const expiryTimeTimestamp = Math.floor(
@@ -46,7 +46,7 @@ class TransactionService {
     );
 
     if (expiryTimeTimestamp <= currentTimestamp) {
-      throw new AuthFailureError("Mã voucher đã hết hạn!");
+      throw new BadRequestError("Mã voucher đã hết hạn!");
     }
 
     //! 3. Tăng số lượng xu trong bảng users
