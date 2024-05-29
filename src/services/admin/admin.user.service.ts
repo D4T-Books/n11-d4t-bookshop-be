@@ -1,14 +1,14 @@
-import { queryToDatabase } from "../configs/mysql2.config.ts";
+import { queryToDatabase } from "../../configs/mysql2.config.ts";
 import * as dotenv from "dotenv";
 dotenv.config();
 import {
   AuthFailureError,
   BadRequestError,
-} from "../responses/error.response.ts";
-import { TransactionType } from "../global/index.ts";
-import { pickData } from "../utils/pick.ts";
-import { currentTimestamp } from "../utils/getCurrentTimestamp.ts";
-import generateRandomNumber from "../utils/generateRandomNumber.ts";
+} from "../../responses/error.response.ts";
+import { TransactionType } from "../../global/index.ts";
+import { pickData } from "../../utils/pick.ts";
+import { currentTimestamp } from "../../utils/getCurrentTimestamp.ts";
+import generateRandomNumber from "../../utils/generateRandomNumber.ts";
 
 type updateUserParams = {
   username: string;
@@ -19,9 +19,9 @@ type updateUserParams = {
   phone?: string;
 };
 
-class UserService {
+class AdminUserService {
   static getListUser = async () => {
-    const query1 = `SELECT * FROM users`;
+    const query1 = `SELECT * FROM users WHERE isDeleted = 0`;
     const [users] = await queryToDatabase(query1, []);
 
     const dataToReturn = [];
@@ -31,12 +31,14 @@ class UserService {
           fields: [
             "UserID",
             "Username",
+            "FullName",
             "Email",
             "Fullname",
             "Gender",
             "Birthday",
             "Address",
             "coins",
+            "Roles",
             "UpdatedAt",
           ],
           object: users[i],
@@ -46,6 +48,34 @@ class UserService {
 
     return {
       users: dataToReturn,
+    };
+  };
+
+  static countUser = async () => {
+    const query1 = `SELECT COUNT(*) AS totalUser FROM users WHERE isDeleted = 0`;
+    const [totalUser] = await queryToDatabase(query1, []);
+
+    return {
+      totalUser: totalUser[0].totalUser,
+    };
+  };
+
+  static countBook = async () => {
+    const query1 = `SELECT COUNT(*) AS totalBook FROM books WHERE isShowBook = 1`;
+    const [totalBook] = await queryToDatabase(query1, []);
+
+    return {
+      totalBook: totalBook[0].totalBook,
+    };
+  };
+
+  static countTransaction = async () => {
+    const query1 = `SELECT COUNT(*) AS totalTransaction FROM transactions 
+    WHERE DATE(TransactionDate) = CURRENT_DATE`;
+    const [totalTransaction] = await queryToDatabase(query1, []);
+
+    return {
+      totalTransaction: totalTransaction[0].totalTransaction,
     };
   };
 
@@ -67,6 +97,23 @@ class UserService {
     };
   };
 
+  static searchUser = async ({ FullName }: { FullName: string }) => {
+    const query1 = `SELECT * FROM users WHERE FullName LIKE '%${FullName}%'`;
+    const [users] = await queryToDatabase(query1, []);
+    return {
+      users,
+    };
+  };
+
+  static searchComments = async ({ Username }: { Username: string }) => {
+    const query1 = `SELECT * FROM comments WHERE Username LIKE '%${Username}%'`;
+    console.log("query1 :>> ", query1);
+    const [comments] = await queryToDatabase(query1, []);
+    return {
+      comments,
+    };
+  };
+
   static deleteUserByUserID = async ({ UserID }: { UserID: number }) => {
     const query1 = `UPDATE users SET isDeleted = 1 WHERE UserID = ?`;
     const [user] = await queryToDatabase(query1, [UserID]);
@@ -82,6 +129,15 @@ class UserService {
 
     return {
       user: user[0],
+    };
+  };
+
+  static deleteCommentByID = async ({ ID }: { ID: string }) => {
+    const query1 = `UPDATE comments SET isDeleted = 1 WHERE ID = ?`;
+    const [comment] = await queryToDatabase(query1, [ID]);
+
+    return {
+      comment: comment[0],
     };
   };
 
@@ -141,4 +197,4 @@ class UserService {
   };
 }
 
-export default UserService;
+export default AdminUserService;

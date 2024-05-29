@@ -11,31 +11,30 @@ import { isExist } from "./access.helper.service.ts";
 
 type addCommentParams = {
   username: string;
-  BookID: string;
+  title_for_search: string;
   Content: string;
 };
 
 type getCommentsByBookIDParams = {
-  BookID: string;
+  title_for_search: string;
   numberComment?: number;
 };
 
 class CommentService {
-  static createComment = async ({
-    username,
-    BookID,
-    Content,
-  }: addCommentParams): Promise<any> => {
+  static createComment = async (
+    { Username }: { Username: string },
+    { title_for_search, Content }: addCommentParams
+  ): Promise<any> => {
     //! 1. Kiem tra user co ton tai khong
     const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
-    const [existUser] = await queryToDatabase(query1, [username]);
+    const [existUser] = await queryToDatabase(query1, [Username]);
 
-    if (existUser.length === 0 || existUser[0].Username !== username)
+    if (existUser.length === 0 || existUser[0].Username !== Username)
       throw new AuthFailureError("Không tìm thấy tài khoản!");
 
     //! 2. Kiem tra sách co ton tai khong
 
-    if (!(await isExist("books", "BookID", BookID)))
+    if (!(await isExist("books", "title_for_search", title_for_search)))
       throw new AuthFailureError(
         "Sách này không còn tồn tại! Không thể bình luận!"
       );
@@ -44,12 +43,13 @@ class CommentService {
     const CommentCode = generateRandomNumber();
 
     const query4 = `INSERT INTO comments 
-    (UserID, BookID, Content, CommentCode) 
-    VALUES (?, ?, ?, ?)`;
+    (UserID, Username, title_for_search, Content, CommentCode) 
+    VALUES (?, ?, ?, ?, ?)`;
 
     await queryToDatabase(query4, [
       existUser[0].UserID,
-      BookID,
+      Username,
+      title_for_search,
       Content,
       CommentCode,
     ]);
@@ -63,14 +63,14 @@ class CommentService {
     };
   };
 
-  //! Get the number of the latest comments by BookID
+  //! Get the number of the latest comments by title_for_search
   static getComments = async ({
-    BookID,
+    title_for_search,
     numberComment = 10,
   }: getCommentsByBookIDParams) => {
     //! 1. Kiem tra sách co ton tai khong
 
-    if (!(await isExist("books", "BookID", BookID)))
+    if (!(await isExist("books", "title_for_search", title_for_search)))
       throw new AuthFailureError(
         "Sách này không còn tồn tại! Không thể lấy bình luận!"
       );
@@ -87,12 +87,25 @@ class CommentService {
       );
 
     // Retrieve comments from the database
-    let query2 = `SELECT * FROM comments WHERE BookID = ? ORDER BY comments.ID DESC
-      LIMIT ${numberComment}`;
-    const [comments] = await queryToDatabase(query2, [BookID]);
+    let query2 = `SELECT * 
+    FROM comments 
+    INNER JOIN books ON comments.title_for_search = books.title_for_search
+    WHERE books.title_for_search = ? 
+    ORDER BY comments.ID DESC
+    LIMIT ${numberComment}`;
 
+    //
+    let query3 = `SELECT COUNT(*) as total 
+    FROM comments 
+    INNER JOIN books ON comments.title_for_search = books.title_for_search
+    WHERE books.title_for_search = ? 
+    ORDER BY comments.ID DESC
+    LIMIT ${numberComment}`;
+    const [comments] = await queryToDatabase(query2, [title_for_search]);
+    const [total] = await queryToDatabase(query3, [title_for_search]);
     return {
       comments,
+      total: total[0].total,
     };
   };
 }

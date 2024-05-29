@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { SuccessResponse } from "../responses/success.response.ts";
 import { BookService } from "../services/index.ts";
+import { AuthenticatedRequest } from "../global/index.ts";
 
 class BookController {
   static searchByName = async (
@@ -12,6 +13,17 @@ class BookController {
     new SuccessResponse({
       message: "Search by name success!",
       metadata: await BookService.searchByName(req.body),
+    }).send(res);
+  };
+
+  static searchByTagName = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Search by tag name success!",
+      metadata: await BookService.searchByTagName(req.body),
     }).send(res);
   };
 
@@ -34,6 +46,39 @@ class BookController {
     new SuccessResponse({
       message: "Search top 5 views success!",
       metadata: await BookService.searchTop5BookByViews(),
+    }).send(res);
+  };
+
+  static searchTop6NewBooks = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Search top 5 views success!",
+      metadata: await BookService.searchTop6NewBooks(),
+    }).send(res);
+  };
+
+  static searchTop6FreeBooks = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Search top 5 views success!",
+      metadata: await BookService.searchTop6FreeBooks(),
+    }).send(res);
+  };
+
+  static getBookmarksByTitle = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Get bookmarks success!",
+      metadata: await BookService.getBookmarksByTitle(req.user, req.body),
     }).send(res);
   };
 

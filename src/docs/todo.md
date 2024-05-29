@@ -16,6 +16,9 @@
 
 - Số lượng giao dịch mới trong ngày
 - Tổng doanh thu theo ngày/tuần
+- Hiện danh sách 10 giao dịch gần nhất
+- Hiện danh sách giao dịch của người dùng (tìm theo username)
+- Sắp xếp giao dịch theo thứ tự giảm dần
 
 ## B. Quản lý
 
@@ -34,12 +37,6 @@
 - Thêm mới sách
 - Sửa sách
 - Ẩn sách
-
-## Quản lý giao dịch
-
-- Hiện danh sách 10 giao dịch gần nhất
-- Hiện danh sách giao dịch của người dùng (tìm theo username)
-- Sắp xếp giao dịch theo thứ tự giảm dần
 
 ## Quản lý bình luận
 

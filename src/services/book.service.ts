@@ -18,13 +18,13 @@ type searchByNameParams = {
 };
 type addBookParams = {
   Title: string;
-  title_for_search: string;
   CoverURL: string;
   Author: string;
   Description: string;
   Categories: string;
   PageNumber: number;
   Price: number;
+  language: string;
 };
 
 //  books (Title, title_for_search, CoverURL, Author, Description, Categories, PageNumber, Price)
@@ -40,8 +40,30 @@ class BookService {
 
     const [books] = await queryToDatabase(query1, [title]);
 
+    try {
+      const [books] = await queryToDatabase(query1, [title]);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+
     return {
       books,
+    };
+  };
+
+  static searchByTagName = async ({
+    title,
+  }: searchByNameParams): Promise<any> => {
+    const query1 = `
+    SELECT * 
+    FROM books 
+    WHERE title_for_search 
+    LIKE '%${title}%' `;
+
+    const [books] = await queryToDatabase(query1, [title]);
+
+    return {
+      book: books[0],
     };
   };
 
@@ -72,9 +94,36 @@ class BookService {
     SELECT * 
     FROM books 
     WHERE isShowBook = 1 
-    ORDER BY Views DESC LIMIT 5`;
+    ORDER BY Views DESC LIMIT 6`;
+
     const [books] = await queryToDatabase(query1, []);
 
+    return {
+      books,
+    };
+  };
+
+  static searchTop6NewBooks = async (): Promise<any> => {
+    const query1 = `
+    SELECT * 
+    FROM books 
+    WHERE isShowBook = 1 
+    ORDER BY publication_year DESC LIMIT 6`;
+
+    const [books] = await queryToDatabase(query1, []);
+    return {
+      books,
+    };
+  };
+
+  static searchTop6FreeBooks = async (): Promise<any> => {
+    const query1 = `
+    SELECT * 
+    FROM books 
+    WHERE isShowBook = 1 AND Price = 0
+    ORDER BY publication_year DESC LIMIT 6`;
+
+    const [books] = await queryToDatabase(query1, []);
     return {
       books,
     };
@@ -83,18 +132,19 @@ class BookService {
   // ! ADMIN ONLY
   static addBook = async ({
     Title,
-    title_for_search,
     CoverURL,
     Author,
     Description,
     Categories,
     PageNumber,
     Price,
+    language,
   }: addBookParams): Promise<any> => {
+    const title_for_search = stringConversion(Title);
     if (await isExistBook(title_for_search)) {
       throw new ConflictRequestError("Tên sách đã tồn tại!");
     }
-    const query1 = `INSERT INTO books (Title, title_for_search, CoverURL, Author, Description, Categories, PageNumber, Price) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`;
+    const query1 = `INSERT INTO books (Title, title_for_search, CoverURL, Author, Description, Categories, PageNumber, Price, language) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
     await queryToDatabase(query1, [
       Title,
@@ -105,6 +155,7 @@ class BookService {
       Categories,
       PageNumber,
       Price,
+      language,
     ]);
 
     const query2 = `SELECT * FROM books WHERE title_for_search = ?`;
@@ -121,40 +172,50 @@ class BookService {
   }: {
     title_for_search: string;
   }): Promise<any> => {
-    if (!(await isExistBook(title_for_search))) {
-      throw new BadRequestError("Truy vấn đến sách không tồn tại!");
+    try {
+      // console.log("title_for_search :>> ", title_for_search);
+      if (!(await isExistBook(title_for_search))) {
+        throw new BadRequestError("Truy vấn đến sách không tồn tại!");
+      }
+      const query1 = `SELECT * FROM books WHERE title_for_search = ?`;
+
+      let [book] = await queryToDatabase(query1, [title_for_search]);
+
+      if (book.length > 0 && book[0].isShowBook == 1) {
+        console.log("HERE");
+        await queryToDatabase(
+          "UPDATE books SET isShowBook = 0 WHERE title_for_search = ?",
+          [title_for_search]
+        );
+      } else if (book.length > 0 && book[0].isShowBook == 0) {
+        await queryToDatabase(
+          "UPDATE books SET isShowBook = 1 WHERE title_for_search = ?",
+          [title_for_search]
+        );
+      }
+
+      [book] = await queryToDatabase(query1, [title_for_search]);
+
+      return {
+        book: book[0],
+      };
+    } catch (error) {
+      console.log("error :>> ", error);
+      return {};
     }
-    const query1 = `SELECT * FROM books WHERE title_for_search = ?`;
-
-    let [book] = await queryToDatabase(query1, [title_for_search]);
-
-    if (book.length > 0 && book[0].isShowBook == 1) {
-      await queryToDatabase(
-        "UPDATE books SET isShowBook = 0 WHERE title_for_search = ?",
-        [title_for_search]
-      );
-    } else if (book.length > 0 && book[0].isShowBook == 0) {
-      await queryToDatabase(
-        "UPDATE books SET isShowBook = 1 WHERE title_for_search = ?",
-        [title_for_search]
-      );
-    }
-
-    [book] = await queryToDatabase(query1, [title_for_search]);
-
-    return {
-      book: book[0],
-    };
   };
 
+  //! Create Bookmarks
   static createBookmark = async ({
     title_for_search,
     Username,
     PageNumber,
+    clickPositionY,
   }: {
     title_for_search: string;
     Username: string;
     PageNumber: number;
+    clickPositionY: number;
   }): Promise<any> => {
     if (!(await isExistBook(title_for_search))) {
       throw new BadRequestError("Sách không tồn tại!");
@@ -163,40 +224,89 @@ class BookService {
     if (!(await isExistUsername(Username))) {
       throw new BadRequestError("Người dùng không tồn tại!");
     }
+
     const query1 = `
-    SELECT * 
-    FROM books 
-    WHERE title_for_search = ?`;
+      SELECT PageNumber 
+      FROM books 
+      WHERE title_for_search = ?`;
 
-    let [book] = await queryToDatabase(query1, [title_for_search]);
+    const [book] = await queryToDatabase(query1, [title_for_search]);
 
-    if (book[0].PageNumber < PageNumber) {
+    if (!book || book.length === 0 || book[0].PageNumber < PageNumber) {
       throw new BadRequestError("Số trang không hợp lệ!");
     }
 
-    if (await isExistBookmark(title_for_search)) {
-      const query = `
-      UPDATE bookmarks 
-      SET PageNumber = ? 
+    const query2 = `
+      SELECT * 
+      FROM bookmarks 
       WHERE title_for_search = ? AND Username = ?`;
 
-      await queryToDatabase(query, [PageNumber, title_for_search, Username]);
+    const [existingBookmark] = await queryToDatabase(query2, [
+      title_for_search,
+      Username,
+    ]);
+
+    if (existingBookmark && existingBookmark.length > 0) {
+      const query3 = `
+        UPDATE bookmarks 
+        SET PageNumber = ?, clickPositionY = ? 
+        WHERE title_for_search = ? AND Username = ?`;
+
+      await queryToDatabase(query3, [
+        PageNumber,
+        clickPositionY,
+        title_for_search,
+        Username,
+      ]);
     } else {
-      const query2 = `
-      INSERT INTO bookmarks (title_for_search, Username, PageNumber) 
-      VALUES (?,?,?)`;
-      await queryToDatabase(query2, [title_for_search, Username, PageNumber]);
+      const query4 = `
+        INSERT INTO bookmarks (title_for_search, Username, PageNumber, clickPositionY) 
+        VALUES (?,?,?,?)`;
+      await queryToDatabase(query4, [
+        title_for_search,
+        Username,
+        PageNumber,
+        clickPositionY,
+      ]);
     }
 
-    const query3 = `
-    SELECT * 
-    FROM bookmarks 
-    WHERE title_for_search = ? 
-    ORDER BY id DESC`;
+    const query5 = `
+      SELECT * 
+      FROM bookmarks 
+      WHERE title_for_search = ? AND Username = ? 
+      ORDER BY id DESC`;
 
-    const [newBookmark] = await queryToDatabase(query3, [title_for_search]);
+    const [newBookmark] = await queryToDatabase(query5, [
+      title_for_search,
+      Username,
+    ]);
+
+    if (!newBookmark || newBookmark.length === 0) {
+      throw new Error("Đã xảy ra lỗi trong quá trình tạo bookmark.");
+    }
+
+    console.log("newBookmark :>> ", newBookmark[0]);
     return {
       newBookmark: newBookmark[0],
+    };
+  };
+
+  static getBookmarksByTitle = async (
+    { Username }: { Username: string },
+    { title_for_search }: { title_for_search: string }
+  ): Promise<any> => {
+    const query = `
+      SELECT * 
+      FROM bookmarks 
+      WHERE title_for_search = ? AND Username = ?
+      ORDER BY id DESC`;
+
+    const [bookmarks] = await queryToDatabase(query, [
+      title_for_search,
+      Username,
+    ]);
+    return {
+      bookmarks: bookmarks,
     };
   };
 

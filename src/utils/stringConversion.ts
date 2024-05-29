@@ -1,13 +1,15 @@
-function stringConversion(chuoi: string) {
-  if (chuoi.trim() == "") chuoi = "qwerty";
+function stringConversion(chuoi: any) {
+  if (chuoi.toString().trim() == "") chuoi = "qwerty";
+
   return chuoi
+    .toString()
     .trim()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace("đ", "d")
-    .replace("Đ", "d")
+    .replaceAll(/[\u0300-\u036f]/g, "")
+    .replaceAll("đ", "d")
+    .replaceAll("Đ", "d")
     .toLowerCase()
-    .replace(/\s+/g, "_");
+    .replaceAll(/\s+/g, "_");
 }
 
 export default stringConversion;

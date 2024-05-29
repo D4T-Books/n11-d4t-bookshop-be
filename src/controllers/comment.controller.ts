@@ -11,7 +11,7 @@ class CommentController {
   ) => {
     new SuccessResponse({
       message: "Add a new comment success!",
-      metadata: await CommentService.createComment(req.body),
+      metadata: await CommentService.createComment(req.user, req.body),
     }).send(res);
   };
 
@@ -21,7 +21,7 @@ class CommentController {
     next: NextFunction
   ) => {
     new SuccessResponse({
-      message: "Add a new comment success!",
+      message: "Get list comment success!",
       metadata: await CommentService.getComments(req.body),
     }).send(res);
   };
