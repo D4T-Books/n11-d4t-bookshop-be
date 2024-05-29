@@ -6,6 +6,7 @@ import {
   ConflictRequestError,
   NotFoundError,
 } from "../../responses/error.response.ts";
+import { currentTimestamp } from "../../utils/getCurrentTimestamp.ts";
 import { pickData } from "../../utils/pick.ts";
 import stringConversion from "../../utils/stringConversion.ts";
 import {
@@ -170,6 +171,92 @@ class AdminBookService {
 
     return {
       book: book[0],
+    };
+  };
+
+  static getVoucherList = async (): Promise<any> => {
+    const query = "SELECT * FROM vouchers";
+
+    const [vouchers] = await queryToDatabase(query, []);
+    return {
+      vouchers,
+    };
+  };
+
+  static createVoucher = async ({
+    Code,
+    Amount,
+    ExpiryTime,
+  }: {
+    Code: string;
+    Amount: string;
+    ExpiryTime: string;
+  }): Promise<any> => {
+    const query = `
+      INSERT INTO vouchers (Code, Amount, ExpiryTime) 
+      VALUES(?, ?, DATE_ADD(NOW(), INTERVAL ? HOUR))`;
+
+    try {
+      await queryToDatabase(query, [Code, Amount, ExpiryTime]);
+      return {
+        message: "Tạo voucher thành công",
+      };
+    } catch (error) {
+      console.error("Error inserting voucher: ", error);
+      return {
+        message: "Có lỗi xảy ra khi tạo voucher",
+        error,
+      };
+    }
+  };
+
+  static deleteVoucher = async ({
+    VoucherID,
+  }: {
+    VoucherID: string;
+  }): Promise<any> => {
+    const query = "DELETE FROM vouchers WHERE VoucherID = ?";
+
+    await queryToDatabase(query, [VoucherID]);
+    return {
+      message: "Xóa voucher thành công",
+    };
+  };
+
+  static updateVoucher = async ({
+    Amount,
+    VoucherID,
+  }: {
+    Amount: string;
+    VoucherID: string;
+  }): Promise<any> => {
+    const query = "UPDATE vouchers SET Amount = ? WHERE VoucherID = ?";
+
+    await queryToDatabase(query, [Amount, VoucherID]);
+    return {
+      message: "Xóa voucher thành công",
+    };
+  };
+
+  static searchVoucher = async ({ Code }: { Code: string }): Promise<any> => {
+    const query = `SELECT * FROM vouchers WHERE Code LIKE '%${Code}%'`;
+
+    const [vouchers] = await queryToDatabase(query, []);
+    return {
+      vouchers,
+    };
+  };
+
+  static searchVoucherByID = async ({
+    VoucherID,
+  }: {
+    VoucherID: string;
+  }): Promise<any> => {
+    const query = `SELECT * FROM vouchers WHERE VoucherID = ?`;
+
+    const [voucher] = await queryToDatabase(query, [VoucherID]);
+    return {
+      voucher: voucher[0],
     };
   };
 }

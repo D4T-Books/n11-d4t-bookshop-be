@@ -127,6 +127,72 @@ class AdminController {
       metadata: await AdminBookService.updateBook(req.body),
     }).send(res);
   };
+
+  static getVoucherList = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Get Voucher List success!",
+      metadata: await AdminBookService.getVoucherList(),
+    }).send(res);
+  };
+
+  static createVoucher = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Create A New Voucher success!",
+      metadata: await AdminBookService.createVoucher(req.body),
+    }).send(res);
+  };
+
+  static deleteVoucher = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Delete Voucher success!",
+      metadata: await AdminBookService.deleteVoucher(req.body),
+    }).send(res);
+  };
+
+  static updateVoucher = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Update Voucher success!",
+      metadata: await AdminBookService.updateVoucher(req.body),
+    }).send(res);
+  };
+
+  static searchVoucher = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Search Voucher success!",
+      metadata: await AdminBookService.searchVoucher(req.body),
+    }).send(res);
+  };
+
+  static searchVoucherByID = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Search Voucher By ID success!",
+      metadata: await AdminBookService.searchVoucherByID(req.body),
+    }).send(res);
+  };
 }
 
 export default AdminController;

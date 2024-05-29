@@ -90,4 +90,46 @@ router.post(
   asyncHandle(AdminController.updateBook)
 );
 
+router.get(
+  "/admin/vouchers/list",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.getVoucherList)
+);
+
+router.post(
+  "/admin/voucher/create",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.createVoucher)
+);
+
+router.post(
+  "/admin/voucher/update",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.updateVoucher)
+);
+
+router.post(
+  "/admin/voucher/delete",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.deleteVoucher)
+);
+
+router.post(
+  "/admin/voucher/search",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.searchVoucher)
+);
+
+router.post(
+  "/admin/voucher/search/id",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["A"]),
+  asyncHandle(AdminController.searchVoucherByID)
+);
+
 export default router;
