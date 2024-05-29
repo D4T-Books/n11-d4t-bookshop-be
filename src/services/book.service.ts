@@ -40,6 +40,12 @@ class BookService {
 
     const [books] = await queryToDatabase(query1, [title]);
 
+    try {
+      const [books] = await queryToDatabase(query1, [title]);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+
     return {
       books,
     };

@@ -27,6 +27,13 @@ router.post(
 );
 
 router.post(
+  "/read/buy",
+  asyncHandle(accessMiddleware),
+  authorizationMiddleware(["U", "A"]),
+  asyncHandle(ReadController.buyBook)
+);
+
+router.post(
   "/read/tracking/loved",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["U", "A"]),

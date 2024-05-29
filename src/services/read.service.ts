@@ -37,32 +37,34 @@ class ReadService {
       throw new BadRequestError("Sách không tồn tại!");
     }
 
-    // Kiểm tra trạng thái mua sách
-    const queryTrack = `
-      SELECT * 
-      FROM book_tracking 
-      WHERE Username = ? 
-      AND title_for_search = ? AND isBought = 0`;
-    let [track] = await queryToDatabase(queryTrack, [
-      Username,
-      title_for_search,
-    ]);
-
-    console.log("track.length :>> ", track.length);
-
-    if (track.length === 0 && book[0].Price == 0) {
-      // Chèn thông tin theo dõi sách nếu chưa tồn tại và sách miễn phí
-      const queryInsert = `
-        INSERT INTO book_tracking (Username, title_for_search, isBought) 
-        VALUES (?, ?, 1)`;
-      await queryToDatabase(queryInsert, [Username, title_for_search]);
-
-      // Truy vấn lại để lấy thông tin theo dõi vừa được thêm vào
-      const queryTrackAfterInsert = `
+    if (book[0].Price == 0) {
+      // Kiểm tra trạng thái mua sách
+      const queryTrack = `
         SELECT * 
         FROM book_tracking 
         WHERE Username = ? 
-        AND title_for_search = ? AND isBought = 1`;
+        AND title_for_search = ?`;
+      let [track] = await queryToDatabase(queryTrack, [
+        Username,
+        title_for_search,
+      ]);
+
+      // console.log("track.length :>> ", track.length);
+
+      if (track.length === 0) {
+        // Chèn thông tin theo dõi sách nếu chưa tồn tại
+        const queryInsert = `
+          INSERT INTO book_tracking (Username, title_for_search, isBought) 
+          VALUES (?, ?, 1)`;
+        await queryToDatabase(queryInsert, [Username, title_for_search]);
+      }
+
+      // Truy vấn lại để lấy thông tin theo dõi vừa được thêm vào
+      const queryTrackAfterInsert = `
+      SELECT * 
+      FROM book_tracking 
+      WHERE Username = ? 
+      AND title_for_search = ? AND isBought = 1`;
 
       [track] = await queryToDatabase(queryTrackAfterInsert, [
         Username,
@@ -79,8 +81,71 @@ class ReadService {
         track: track[0],
       };
     } else {
-      throw new BadRequestError("Bạn chưa mở khóa sách này!");
+      // Truy vấn lại để lấy thông tin theo dõi vừa được thêm vào
+      const queryTrackAfterInsert = `
+      SELECT * 
+      FROM book_tracking 
+      WHERE Username = ? 
+      AND title_for_search = ? AND isBought = 1`;
+
+      const [track] = await queryToDatabase(queryTrackAfterInsert, [
+        Username,
+        title_for_search,
+      ]);
+
+      if (!track || track.length === 0) {
+        throw new BadRequestError("Bạn chưa mở khóa sách này!");
+      }
+
+      return {
+        track: track[0],
+      };
     }
+  };
+
+  static buyBook = async (
+    { Username }: { Username: string },
+    { title_for_search }: { title_for_search: string }
+  ): Promise<any> => {
+    // Kiểm tra giá sách
+    const queryPrice = `
+      SELECT Price 
+      FROM books 
+      WHERE title_for_search = ?`;
+    const [book] = await queryToDatabase(queryPrice, [title_for_search]);
+
+    if (!book || book.length === 0) {
+      throw new BadRequestError("Sách không tồn tại!");
+    }
+
+    // Cập nhật thông tin mua sách
+
+    const queryInsert = `
+    INSERT INTO book_tracking (Username, title_for_search, isBought) 
+    VALUES (?, ?, 1)`;
+    await queryToDatabase(queryInsert, [Username, title_for_search]);
+
+    // Truy vấn lại để lấy thông tin theo dõi sau khi cập nhật
+    const queryTrackAfterUpdate = `
+    SELECT * 
+    FROM book_tracking 
+    WHERE Username = ? 
+    AND title_for_search = ? AND isBought = 1`;
+
+    const [track] = await queryToDatabase(queryTrackAfterUpdate, [
+      Username,
+      title_for_search,
+    ]);
+
+    if (!track || track.length === 0) {
+      throw new Error(
+        "Đã xảy ra lỗi trong quá trình cập nhật thông tin theo dõi sách."
+      );
+    }
+
+    return {
+      track: track[0],
+    };
   };
 
   static trackingFavoriteBook = async (

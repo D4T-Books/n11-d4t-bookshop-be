@@ -49,6 +49,17 @@ class ReadController {
     }).send(res);
   };
 
+  static buyBook = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Buy a new book success!",
+      metadata: await ReadService.buyBook(req.user, req.body),
+    }).send(res);
+  };
+
   static trackingFavoriteBook = async (
     req: AuthenticatedRequest,
     res: Response,
