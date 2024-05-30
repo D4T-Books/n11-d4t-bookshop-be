@@ -16,6 +16,17 @@ class BookController {
     }).send(res);
   };
 
+  static searchByCategory = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Search by category success!",
+      metadata: await BookService.searchByCategory(req.body),
+    }).send(res);
+  };
+
   static searchByTagName = async (
     req: Request,
     res: Response,

@@ -36,7 +36,7 @@ class BookService {
     SELECT * 
     FROM books 
     WHERE title_for_search 
-    LIKE '%${stringConversion(title)}%' `;
+    LIKE '%${stringConversion(title)}%' AND isShowBook = 1`;
 
     const [books] = await queryToDatabase(query1, [title]);
 
@@ -51,6 +51,32 @@ class BookService {
     };
   };
 
+  static searchByCategory = async ({
+    category,
+  }: {
+    category: string;
+  }): Promise<any> => {
+    console.log("category :>> ", category);
+    const query1 = `
+    SELECT * 
+    FROM books 
+    WHERE Categories 
+    LIKE '%${category}%' AND isShowBook = 1`;
+
+    console.log("query1 :>> ", query1);
+
+    try {
+      const [books] = await queryToDatabase(query1, [category]);
+
+      return {
+        books,
+      };
+    } catch (error) {
+      console.log("error :>> ", error);
+      return { books: [] };
+    }
+  };
+
   static searchByTagName = async ({
     title,
   }: searchByNameParams): Promise<any> => {
@@ -58,7 +84,7 @@ class BookService {
     SELECT * 
     FROM books 
     WHERE title_for_search 
-    LIKE '%${title}%' `;
+    LIKE '%${title}%' AND isShowBook = 1`;
 
     const [books] = await queryToDatabase(query1, [title]);
 
@@ -78,7 +104,7 @@ class BookService {
     SELECT * 
     FROM books 
     WHERE Categories 
-    LIKE '%${category_for_search}%' 
+    LIKE '%${category_for_search}%' AND isShowBook = 1
     LIMIT 10;`;
 
     const [books] = await queryToDatabase(query1, []);

@@ -9,6 +9,11 @@ const router = express.Router();
 router.post("/book/search-name", asyncHandle(BookController.searchByName));
 
 router.post(
+  "/book/search-category",
+  asyncHandle(BookController.searchByCategory)
+);
+
+router.post(
   "/book/search-tag-name",
   asyncHandle(BookController.searchByTagName)
 );
