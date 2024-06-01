@@ -7,6 +7,11 @@ import { authorizationMiddleware } from "../middlewares/authorization.middleware
 const router = express.Router();
 
 router.post(
+  "/transaction/add-coins-by-order",
+  asyncHandle(TransactionController.addCoinsByOrder)
+);
+
+router.post(
   "/transaction/add-coins",
   asyncHandle(accessMiddleware),
   authorizationMiddleware(["A", "U"]),

@@ -8,7 +8,7 @@ interface AuthenticatedRequest extends Request {
 const authorizationMiddleware = (allowedRoles: string[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const userRoles: string[] = req.user.roles || [];
-    console.log("userRoles :>> ", userRoles);
+    // console.log("userRoles :>> ", userRoles);
     const hasPermission = allowedRoles.some((role) => userRoles.includes(role));
 
     if (!hasPermission) {

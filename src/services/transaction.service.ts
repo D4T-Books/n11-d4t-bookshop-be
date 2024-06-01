@@ -21,6 +21,51 @@ type useCoinsParams = {
 };
 
 class TransactionService {
+  static addCoinsByOrder = async ({
+    Username,
+    numberOfCoins,
+  }: {
+    Username: any;
+    numberOfCoins: any;
+  }) => {
+    //! 1. Kiem tra user co ton tai khong
+    const query1 = `SELECT * FROM users WHERE Username = ? AND isDeleted = 0`;
+    const [existUser] = await queryToDatabase(query1, [Username]);
+
+    if (existUser.length === 0 || existUser[0].Username !== Username)
+      throw new AuthFailureError("Không tìm thấy tài khoản!");
+
+    //! 2. Tăng số lượng xu trong bảng users
+    const numToUpdate = Number(numberOfCoins) + existUser[0].coins;
+    console.log("numToUpdate :>> ", numToUpdate);
+    const query3 = `UPDATE users SET coins = ? WHERE Username = ?`;
+
+    await queryToDatabase(query3, [numToUpdate, Username]);
+
+    //! 3. Thêm lịch sử giao dịch vào bảng transactions
+    const query4 = `INSERT INTO transactions 
+    (UserID, TransactionType, TransactionAmount, tradingCode) 
+    VALUES (?, ?, ?, ?)`;
+
+    const tradingCode = generateRandomNumber();
+
+    await queryToDatabase(query4, [
+      existUser[0].UserID,
+      TransactionType.NAP,
+      numberOfCoins,
+      tradingCode,
+    ]);
+
+    const query5 = `SELECT * FROM transactions 
+    WHERE tradingCode = ?`;
+    const [newTransaction] = await queryToDatabase(query5, [tradingCode]);
+
+    return {
+      Username,
+      newTransaction,
+    };
+  };
+
   static addCoins = async (
     { Username }: { Username: string },
     { voucherCode }: addCoinsParams

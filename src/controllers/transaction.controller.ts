@@ -15,6 +15,18 @@ class TransactionController {
       metadata: await TransactionService.addCoins(req.user, req.body),
     }).send(res);
   };
+
+  static addCoinsByOrder = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    new SuccessResponse({
+      message: "Add Coins success!",
+      metadata: await TransactionService.addCoinsByOrder(req.body),
+    }).send(res);
+  };
+
   static useCoins = async (
     req: AuthenticatedRequest,
     res: Response,

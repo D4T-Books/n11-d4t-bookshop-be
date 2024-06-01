@@ -7,6 +7,7 @@ import userRouter from "./user.route";
 import readRouter from "./read.route";
 import pingRouter from "./ping.route";
 import adminRouter from "./admin/admin.route";
+import orderRouter from "./order/order.route";
 
 const router: Router = express.Router();
 
@@ -19,5 +20,6 @@ router.use("/v1/api", readRouter);
 router.use("/v1/api", pingRouter);
 
 router.use("/v1/api", adminRouter);
+router.use("/v1/api", orderRouter);
 
 export default router;
